@@ -13,9 +13,12 @@ Determine address of proxied request
 ### proxyaddr(req, trust)
 
 Return the address of the request, using the given `trust` parameter.
+
 The `trust` argument is a function that returns `true` if you trust
 the address, `false` if you don't. The closest untrusted address is
 returned.
+
+The `trust` argument may also be an array of trusted addresses.
 
 ### proxyaddr.all(req, trust)
 

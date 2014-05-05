@@ -34,7 +34,7 @@ function alladdrs(req) {
  * Determine address of proxied request.
  *
  * @param {Object} request
- * @param {Function} trust
+ * @param {Function|Array} trust
  * @api public
  */
 
@@ -42,7 +42,16 @@ function proxyaddr(req, trust) {
   var addrs = alladdrs(req);
   var addr = addrs[0];
 
-  if (typeof trust !== 'function') throw new TypeError('trust argument is required');
+  if (typeof trust !== 'function') {
+    if (Array.isArray(trust)) {
+      // Array of trusted addresses
+      trust = trustArray(trust);
+    }
+  }
+
+  if (typeof trust !== 'function') {
+    throw new TypeError('trust argument is required');
+  }
 
   for (var i = 0; i < addrs.length - 1; i++) {
     if (!trust(addrs[i])) break;
@@ -50,4 +59,17 @@ function proxyaddr(req, trust) {
   }
 
   return addr;
+}
+
+/**
+ * Generate function to trust array of addresses.
+ *
+ * @param {Array} arr
+ * @api private
+ */
+
+function trustArray(arr) {
+  return function (addr) {
+    return ~arr.indexOf(addr);
+  };
 }
