@@ -23,7 +23,7 @@ function alladdrs(req) {
 
   var proxyAddrs = (req.headers['x-forwarded-for'] || '')
     .split(/ *, */)
-    .filter(isTruthy)
+    .filter(Boolean)
     .reverse();
   var socketAddr = req.connection.remoteAddress;
 
@@ -50,8 +50,4 @@ function proxyaddr(req, trust) {
   }
 
   return addr;
-}
-
-function isTruthy(val) {
-  return Boolean(val);
 }
