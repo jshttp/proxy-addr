@@ -1,0 +1,30 @@
+{
+  "name": "proxy-addr",
+  "description": "Determine address of proxied request",
+  "version": "0.0.0",
+  "author": "Douglas Christopher Wilson <doug@somethingdoug.com>",
+  "license": "MIT",
+  "keywords": [
+    "ip",
+    "proxy",
+    "x-forwarded-for"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/expressjs/proxy-ip.git"
+  },
+  "bugs": {
+    "url": "https://github.com/expressjs/proxy-ip/issues"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "mocha": "~1.18.2",
+    "should": "~3.3.1"
+  },
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "scripts": {
+    "test": "mocha --reporter spec test/"
+  }
+}
