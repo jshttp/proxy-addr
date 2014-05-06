@@ -177,6 +177,15 @@ describe('proxyaddr(req, trust)', function () {
       proxyaddr(req, ['fe80::/ffff:ffff:ffff:ffff:ffff:ffff:ffff:fff8']).should.equal('fe80::ff00');
     });
   });
+
+  describe('when IP versions mixed', function () {
+    it('should match respective versions', function () {
+      var req = createReq('::1', {
+        'x-forwarded-for': '2002:c000:203::1'
+      });
+      proxyaddr(req, ['127.0.0.1', '::1']).should.equal('2002:c000:203::1');
+    });
+  });
 });
 
 describe('proxyaddr.all(req)', function () {

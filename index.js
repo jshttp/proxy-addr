@@ -92,6 +92,7 @@ function compileTrust(rangeSubnets) {
 
     for (var i = 0; i < rangeSubnets.length; i++) {
       subnet = rangeSubnets[i];
+      if (ip.kind() !== subnet[0].kind()) continue;
       if (ip.match.apply(ip, subnet)) return true;
     }
 
