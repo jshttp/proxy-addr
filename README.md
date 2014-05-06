@@ -21,10 +21,11 @@ returned.
     proxyaddr(req, function(addr){ return addr === '127.0.0.1' })
 
 The `trust` argument may also be an array of trusted addresses, as
-plain IP addresses or CIDR-formatted strings.
+plain IP addresses, CIDR-formatted strings, or IP/netmask strings.
 
     proxyaddr(req, ['127.0.0.1'])
     proxyaddr(req, ['127.0.0.0/8', '10.0.0.0/8'])
+    proxyaddr(req, ['127.0.0.0/255.0.0.0', '192.168.0.0/255.255.0.0'])
 
 ### proxyaddr.all(req, trust)
 

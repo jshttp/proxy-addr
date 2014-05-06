@@ -135,6 +135,8 @@ function parseipNotation(note) {
   if (typeof range !== 'number') {
     range = digitre.test(range)
       ? parseInt(range, 10)
+      : isip(range)
+      ? parseNetmask(range)
       : 0;
   }
 
@@ -143,6 +145,54 @@ function parseipNotation(note) {
   }
 
   return [ip, range];
+}
+
+/**
+ * Parse netmask string into CIDR range.
+ *
+ * @param {String} note
+ * @api private
+ */
+
+function parseNetmask(netmask) {
+  var ip = parseip(netmask);
+  var parts;
+  var size;
+
+  switch (ip.kind()) {
+    case 'ipv4':
+      parts = ip.octets;
+      size = 8;
+      break;
+    case 'ipv6':
+      parts = ip.parts;
+      size = 16;
+      break;
+    default:
+      throw new TypeError('unknown netmask');
+  }
+
+  var max = Math.pow(2, size) - 1;
+  var part;
+  var range = 0;
+
+  for (var i = 0; i < parts.length; i++) {
+    part = parts[i] & max;
+
+    if (part === max) {
+      range += size;
+      continue;
+    }
+
+    while (part) {
+      part = (part << 1) & max;
+      range += 1;
+    }
+
+    break;
+  }
+
+  return range;
 }
 
 /**

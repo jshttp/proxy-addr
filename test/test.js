@@ -123,6 +123,13 @@ describe('proxyaddr(req, trust)', function () {
       proxyaddr(req, ['10.0.0.2/26']).should.equal('10.0.0.200');
     });
 
+    it('should accept netmask notation', function () {
+      var req = createReq('10.0.0.1', {
+        'x-forwarded-for': '192.168.0.1, 10.0.0.200'
+      });
+      proxyaddr(req, ['10.0.0.2/255.255.255.192']).should.equal('10.0.0.200');
+    });
+
     describe('when array empty', function () {
       it('should return socket address ', function () {
         var req = createReq('127.0.0.1');
