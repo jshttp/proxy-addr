@@ -34,6 +34,7 @@ describe('proxyaddr(req, trust)', function () {
       it('should reject bad CIDR', function () {
         var req = createReq('127.0.0.1');
         proxyaddr.bind(null, req, ['10.0.0.1/6000']).should.throw(/invalid range on address/);
+        proxyaddr.bind(null, req, ['::1/6000']).should.throw(/invalid range on address/);
       });
     });
   });
@@ -116,6 +117,29 @@ describe('proxyaddr(req, trust)', function () {
       proxyaddr(req, ['10.0.0.1', '10.0.0.2']).should.equal('192.168.0.1');
     });
 
+    describe('when array empty', function () {
+      it('should return socket address ', function () {
+        var req = createReq('127.0.0.1');
+        proxyaddr(req, []).should.equal('127.0.0.1');
+      });
+
+      it('should return socket address with headers', function () {
+        var req = createReq('127.0.0.1', {
+          'x-forwarded-for': '10.0.0.1, 10.0.0.2'
+        });
+        proxyaddr(req, []).should.equal('127.0.0.1');
+      });
+    });
+  });
+
+  describe('when given IPv4 addresses', function () {
+    it('should accept literal IP addresses', function () {
+      var req = createReq('10.0.0.1', {
+        'x-forwarded-for': '192.168.0.1, 10.0.0.2'
+      });
+      proxyaddr(req, ['10.0.0.1', '10.0.0.2']).should.equal('192.168.0.1');
+    });
+
     it('should accept CIDR notation', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.200'
@@ -129,19 +153,28 @@ describe('proxyaddr(req, trust)', function () {
       });
       proxyaddr(req, ['10.0.0.2/255.255.255.192']).should.equal('10.0.0.200');
     });
+  });
 
-    describe('when array empty', function () {
-      it('should return socket address ', function () {
-        var req = createReq('127.0.0.1');
-        proxyaddr(req, []).should.equal('127.0.0.1');
+  describe('when given IPv6 addresses', function () {
+    it('should accept literal IP addresses', function () {
+      var req = createReq('fe80::1', {
+        'x-forwarded-for': '2002:c000:203::1, fe80::2'
       });
+      proxyaddr(req, ['fe80::1', 'fe80::2']).should.equal('2002:c000:203::1');
+    });
 
-      it('should return socket address with headers', function () {
-        var req = createReq('127.0.0.1', {
-          'x-forwarded-for': '10.0.0.1, 10.0.0.2'
-        });
-        proxyaddr(req, []).should.equal('127.0.0.1');
+    it('should accept CIDR notation', function () {
+      var req = createReq('fe80::1', {
+        'x-forwarded-for': '2002:c000:203::1, fe80::ff00'
       });
+      proxyaddr(req, ['fe80::/125']).should.equal('fe80::ff00');
+    });
+
+    it('should accept netmask notation', function () {
+      var req = createReq('fe80::1', {
+        'x-forwarded-for': '2002:c000:203::1, fe80::ff00'
+      });
+      proxyaddr(req, ['fe80::/ffff:ffff:ffff:ffff:ffff:ffff:ffff:fff8']).should.equal('fe80::ff00');
     });
   });
 });
