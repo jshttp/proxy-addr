@@ -25,6 +25,16 @@ describe('proxyaddr(req, trust)', function () {
         var req = createReq('127.0.0.1');
         proxyaddr.bind(null, req, []).should.not.throw();
       });
+
+      it('should reject non-IP', function () {
+        var req = createReq('127.0.0.1');
+        proxyaddr.bind(null, req, ['blargh']).should.throw(/invalid IP address/);
+      });
+
+      it('should reject bad CIDR', function () {
+        var req = createReq('127.0.0.1');
+        proxyaddr.bind(null, req, ['10.0.0.1/6000']).should.throw(/invalid range on address/);
+      });
     });
   });
 
@@ -99,11 +109,18 @@ describe('proxyaddr(req, trust)', function () {
   });
 
   describe('when given array', function () {
-    it('should return first untrusted after trusted', function () {
+    it('should accept literal IP addresses', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.2'
       });
       proxyaddr(req, ['10.0.0.1', '10.0.0.2']).should.equal('192.168.0.1');
+    });
+
+    it('should accept CIDR notation', function () {
+      var req = createReq('10.0.0.1', {
+        'x-forwarded-for': '192.168.0.1, 10.0.0.200'
+      });
+      proxyaddr(req, ['10.0.0.2/26']).should.equal('10.0.0.200');
     });
 
     describe('when array empty', function () {

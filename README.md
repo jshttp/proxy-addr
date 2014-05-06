@@ -18,7 +18,13 @@ The `trust` argument is a function that returns `true` if you trust
 the address, `false` if you don't. The closest untrusted address is
 returned.
 
-The `trust` argument may also be an array of trusted addresses.
+    proxyaddr(req, function(addr){ return addr === '127.0.0.1' })
+
+The `trust` argument may also be an array of trusted addresses, as
+plain IP addresses or CIDR-formatted strings.
+
+    proxyaddr(req, ['127.0.0.1'])
+    proxyaddr(req, ['127.0.0.0/8', '10.0.0.0/8'])
 
 ### proxyaddr.all(req, trust)
 

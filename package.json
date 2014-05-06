@@ -16,7 +16,9 @@
   "bugs": {
     "url": "https://github.com/expressjs/proxy-ip/issues"
   },
-  "dependencies": {},
+  "dependencies": {
+    "ipaddr.js": "0.1.2"
+  },
   "devDependencies": {
     "mocha": "~1.18.2",
     "should": "~3.3.1"
