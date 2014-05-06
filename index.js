@@ -88,12 +88,26 @@ function compileTrust(rangeSubnets) {
     if (!isip(addr)) return false;
 
     var ip = parseip(addr);
+    var ipv4;
+    var kind = ip.kind();
     var subnet;
+    var trusted;
 
     for (var i = 0; i < rangeSubnets.length; i++) {
       subnet = rangeSubnets[i];
-      if (ip.kind() !== subnet[0].kind()) continue;
-      if (ip.match.apply(ip, subnet)) return true;
+      trusted = ip;
+
+      if (kind !== subnet[0].kind()) {
+        if (kind !== 'ipv6' || subnet[0].kind() !== 'ipv4' || !ip.isIPv4MappedAddress()) {
+          continue;
+        }
+
+        // Store addr as IPv4
+        ipv4 = ipv4 || ip.toIPv4Address();
+        trusted = ipv4;
+      }
+
+      if (trusted.match.apply(trusted, subnet)) return true;
     }
 
     return false;

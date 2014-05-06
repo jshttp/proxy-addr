@@ -186,6 +186,15 @@ describe('proxyaddr(req, trust)', function () {
       proxyaddr(req, ['127.0.0.1', '::1']).should.equal('2002:c000:203::1');
     });
   });
+
+  describe('when IPv4-mapped IPv6 addresses', function () {
+    it('should match IPv4 trust to IPv6 request', function () {
+      var req = createReq('::ffff:a00:1', {
+        'x-forwarded-for': '192.168.0.1, 10.0.0.2'
+      });
+      proxyaddr(req, ['10.0.0.1', '10.0.0.2']).should.equal('192.168.0.1');
+    });
+  });
 });
 
 describe('proxyaddr.all(req)', function () {
