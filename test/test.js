@@ -35,6 +35,8 @@ describe('proxyaddr(req, trust)', function () {
         var req = createReq('127.0.0.1');
         proxyaddr.bind(null, req, ['10.0.0.1/6000']).should.throw(/invalid range on address/);
         proxyaddr.bind(null, req, ['::1/6000']).should.throw(/invalid range on address/);
+        proxyaddr.bind(null, req, ['::ffff:a00:2/136']).should.throw(/invalid range on address/);
+        proxyaddr.bind(null, req, ['::ffff:a00:2/46']).should.throw(/invalid range on address/);
       });
     });
   });
@@ -193,6 +195,27 @@ describe('proxyaddr(req, trust)', function () {
         'x-forwarded-for': '192.168.0.1, 10.0.0.2'
       });
       proxyaddr(req, ['10.0.0.1', '10.0.0.2']).should.equal('192.168.0.1');
+    });
+
+    it('should match IPv6 trust to IPv4 request', function () {
+      var req = createReq('10.0.0.1', {
+        'x-forwarded-for': '192.168.0.1, 10.0.0.2'
+      });
+      proxyaddr(req, ['::ffff:a00:1', '::ffff:a00:2']).should.equal('192.168.0.1');
+    });
+
+    it('should match CIDR notation for IPv4-mapped address', function () {
+      var req = createReq('10.0.0.1', {
+        'x-forwarded-for': '192.168.0.1, 10.0.0.200'
+      });
+      proxyaddr(req, ['::ffff:a00:2/122']).should.equal('10.0.0.200');
+    });
+
+    it('should match subnet notation for IPv4-mapped address', function () {
+      var req = createReq('10.0.0.1', {
+        'x-forwarded-for': '192.168.0.1, 10.0.0.200'
+      });
+      proxyaddr(req, ['::ffff:a00:2/ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffc0']).should.equal('10.0.0.200');
     });
   });
 });

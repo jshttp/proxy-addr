@@ -27,6 +27,17 @@ plain IP addresses, CIDR-formatted strings, or IP/netmask strings.
     proxyaddr(req, ['127.0.0.0/8', '10.0.0.0/8'])
     proxyaddr(req, ['127.0.0.0/255.0.0.0', '192.168.0.0/255.255.0.0'])
 
+This module also supports IPv6. Your IPv6 addresses will be normalized
+automatically (i.e. `fe80::00ed:1` equals `fe80:0:0:0:0:0:ed:1`).
+
+    proxyaddr(req, ['::1'])
+    proxyaddr(req, ['::1/128', 'fe80::/10'])
+    proxyaddr(req, ['fe80::/ffc0::'])
+
+This module will automatically work with IPv4-mapped IPv6 addresses
+as well to support node.js in IPv6-only mode. This means that you do
+not have to specify both `::ffff:a00:1` and `10.0.0.1`.
+
 ### proxyaddr.all(req, trust)
 
 Return all the addresses of the request. This array is ordered from

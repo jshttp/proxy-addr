@@ -155,6 +155,14 @@ function parseipNotation(note) {
       : 0;
   }
 
+  if (ip.kind() === 'ipv6' && ip.isIPv4MappedAddress()) {
+    // Store as IPv4
+    ip = ip.toIPv4Address();
+    range = range <= max
+      ? range - 96
+      : range;
+  }
+
   if (range <= 0 || range > max) {
     throw new TypeError('invalid range on address: ' + note);
   }
