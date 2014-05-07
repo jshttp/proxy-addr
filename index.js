@@ -116,34 +116,13 @@ function compileRangeSubnets(arr) {
  */
 
 function compileTrust(rangeSubnets) {
-  return function trust(addr) {
-    if (!isip(addr)) return false;
-
-    var ip = parseip(addr);
-    var ipv4;
-    var kind = ip.kind();
-    var subnet;
-    var trusted;
-
-    for (var i = 0; i < rangeSubnets.length; i++) {
-      subnet = rangeSubnets[i];
-      trusted = ip;
-
-      if (kind !== subnet[0].kind()) {
-        if (kind !== 'ipv6' || subnet[0].kind() !== 'ipv4' || !ip.isIPv4MappedAddress()) {
-          continue;
-        }
-
-        // Store addr as IPv4
-        ipv4 = ipv4 || ip.toIPv4Address();
-        trusted = ipv4;
-      }
-
-      if (trusted.match.apply(trusted, subnet)) return true;
-    }
-
-    return false;
-  };
+  // Return optimized function based on length
+  var len = rangeSubnets.length;
+  return len === 0
+    ? trustNone
+    : len === 1
+    ? trustSingle(rangeSubnets[0])
+    : trustMulti(rangeSubnets);
 }
 
 /**
@@ -276,4 +255,84 @@ function proxyaddr(req, trust) {
   }
 
   return addr;
+}
+
+/**
+ * Static trust function to trust nothing.
+ *
+ * @api private
+ */
+
+function trustNone() {
+  return false;
+}
+
+/**
+ * Compile trust function for multiple subnets.
+ *
+ * @param {Array} subnets
+ * @api private
+ */
+
+function trustMulti(subnets) {
+  return function trust(addr) {
+    if (!isip(addr)) return false;
+
+    var ip = parseip(addr);
+    var ipv4;
+    var kind = ip.kind();
+    var subnet;
+    var subnetip;
+    var subnetkind;
+    var trusted;
+
+    for (var i = 0; i < subnets.length; i++) {
+      subnet = subnets[i];
+      subnetip = subnet[0];
+      subnetkind = subnetip.kind();
+      subnetrange = subnet[1];
+      trusted = ip;
+
+      if (kind !== subnetkind) {
+        if (kind !== 'ipv6' || subnetkind !== 'ipv4' || !ip.isIPv4MappedAddress()) {
+          continue;
+        }
+
+        // Store addr as IPv4
+        ipv4 = ipv4 || ip.toIPv4Address();
+        trusted = ipv4;
+      }
+
+      if (trusted.match(subnetip, subnetrange)) return true;
+    }
+
+    return false;
+  };
+}
+
+/**
+ * Compile trust function for single subnet.
+ *
+ * @param {Object} subnet
+ * @api private
+ */
+
+function trustSingle(subnet) {
+  var subnetip = subnet[0];
+  var subnetkind = subnetip.kind();
+  var subnetisipv4 = subnetkind === 'ipv4';
+  var subnetrange = subnet[1];
+
+  return function trust(addr) {
+    if (!isip(addr)) return false;
+
+    var ip = parseip(addr);
+    var kind = ip.kind();
+
+    return kind === subnetkind
+      ? ip.match(subnetip, subnetrange)
+      : subnetisipv4 && kind === 'ipv6' && ip.isIPv4MappedAddress()
+      ? ip.toIPv4Address().match(subnetip, subnetrange)
+      : false;
+  };
 }
