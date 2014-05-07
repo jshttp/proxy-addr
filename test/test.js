@@ -46,6 +46,16 @@ describe('proxyaddr(req, trust)', function () {
         proxyaddr.bind(null, req, '::ffff:127.0.0.1').should.not.throw();
       });
 
+      it('should accept pre-defined names', function () {
+        var req = createReq('127.0.0.1');
+        proxyaddr.bind(null, req, 'loopback').should.not.throw();
+      });
+
+      it('should accept pre-defined names in array', function () {
+        var req = createReq('127.0.0.1');
+        proxyaddr.bind(null, req, ['loopback', '10.0.0.1']).should.not.throw();
+      });
+
       it('should reject non-IP', function () {
         var req = createReq('127.0.0.1');
         proxyaddr.bind(null, req, 'blargh').should.throw(/invalid IP address/);
@@ -243,6 +253,22 @@ describe('proxyaddr(req, trust)', function () {
         'x-forwarded-for': '192.168.0.1, 10.0.0.200'
       });
       proxyaddr(req, '::ffff:a00:2/ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffc0').should.equal('10.0.0.200');
+    });
+  });
+
+  describe('when given pre-defined names', function () {
+    it('should accept single pre-defined name', function () {
+      var req = createReq('fe80::1', {
+        'x-forwarded-for': '2002:c000:203::1, fe80::2'
+      });
+      proxyaddr(req, 'linklocal').should.equal('2002:c000:203::1');
+    });
+
+    it('should accept multiple pre-defined names', function () {
+      var req = createReq('::1', {
+        'x-forwarded-for': '2002:c000:203::1, fe80::2'
+      });
+      proxyaddr(req, ['loopback', 'linklocal']).should.equal('2002:c000:203::1');
     });
   });
 });

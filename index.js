@@ -26,6 +26,16 @@ var isip = ipaddr.isValid;
 var parseip = ipaddr.parse;
 
 /**
+ * Pre-defined IP ranges.
+ */
+
+var ipranges = {
+  linklocal: ['169.254.0.0/16', 'fe80::/10'],
+  loopback: ['127.0.0.1/8', '::1/128'],
+  uniquelocal: ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16', 'fc00::/7']
+};
+
+/**
  * Get all addresses in the request.
  *
  * @param {Object} request
@@ -58,6 +68,19 @@ function compile(val) {
 
   if (!Array.isArray(trust)) {
     throw new TypeError('unsupported trust argument');
+  }
+
+  for (var i = 0; i < trust.length; i++) {
+    val = trust[i];
+
+    if (!ipranges.hasOwnProperty(val)) {
+      continue;
+    }
+
+    // Splice in pre-defined range
+    val = ipranges[val];
+    trust.splice.apply(trust, [i, 1].concat(val));
+    i += val.length - 1;
   }
 
   return compileTrust(compileRangeSubnets(trust));

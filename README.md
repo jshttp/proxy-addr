@@ -39,6 +39,19 @@ This module will automatically work with IPv4-mapped IPv6 addresses
 as well to support node.js in IPv6-only mode. This means that you do
 not have to specify both `::ffff:a00:1` and `10.0.0.1`.
 
+As a convenience, this module also takes certain pre-defined names
+in addition to IP addresses, which expand into IP addresses:
+
+    proxyaddr(req, 'loopback')
+    proxyaddr(req, ['loopback', 'fc00:ac:1ab5:fff::1/64'])
+
+  * `loopback`: IPv4 and IPv6 loopback addresses (like `::1` and
+    `127.0.0.1`).
+  * `linklocal`: IPv4 and IPv6 link-local addresses (like
+    `fe80::1:1:1:1` and `169.254.0.1`).
+  * `uniquelocal`: IPv4 private addresses and IPv6 unique-local
+    addresses (like `fc00:ac:1ab5:fff::1` and `192.168.0.1`).
+
 ### proxyaddr.all(req, trust)
 
 Return all the addresses of the request. This array is ordered from
