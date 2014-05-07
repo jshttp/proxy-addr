@@ -37,22 +37,42 @@ var ipranges = {
 };
 
 /**
- * Get all addresses in the request.
+ * Get all addresses in the request, optionally stopping
+ * at the first untrusted.
  *
  * @param {Object} request
+ * @param {Function|Array|String} [trust]
  * @api public
  */
 
-function alladdrs(req) {
-  if (!req) throw new TypeError('req argument is required');
+function alladdrs(req, trust) {
+  if (!req) {
+    throw new TypeError('req argument is required');
+  }
 
   var proxyAddrs = (req.headers['x-forwarded-for'] || '')
     .split(/ *, */)
     .filter(Boolean)
     .reverse();
   var socketAddr = req.connection.remoteAddress;
+  var addrs = [socketAddr].concat(proxyAddrs);
 
-  return [socketAddr].concat(proxyAddrs);
+  if (!trust) {
+    // Return all addresses
+    return addrs;
+  }
+
+  if (typeof trust !== 'function') {
+    trust = compile(trust);
+  }
+
+  for (var i = 0; i < addrs.length - 1; i++) {
+    if (trust(addrs[i])) continue;
+
+    addrs.length = i + 1;
+  }
+
+  return addrs;
 }
 
 /**
@@ -233,26 +253,21 @@ function parseNetmask(netmask) {
  * Determine address of proxied request.
  *
  * @param {Object} request
- * @param {Function|Array} trust
+ * @param {Function|Array|String} trust
  * @api public
  */
 
 function proxyaddr(req, trust) {
-  var addrs = alladdrs(req);
-  var addr = addrs[0];
+  if (!req) {
+    throw new TypeError('req argument is required');
+  }
 
   if (!trust) {
     throw new TypeError('trust argument is required');
   }
 
-  if (typeof trust !== 'function') {
-    trust = compile(trust);
-  }
-
-  for (var i = 0; i < addrs.length - 1; i++) {
-    if (!trust(addrs[i])) break;
-    addr = addrs[i + 1];
-  }
+  var addrs = alladdrs(req, trust);
+  var addr = addrs[addrs.length - 1];
 
   return addr;
 }

@@ -273,11 +273,18 @@ describe('proxyaddr(req, trust)', function () {
   });
 });
 
-describe('proxyaddr.all(req)', function () {
+describe('proxyaddr.all(req, [trust])', function () {
   describe('arguments', function () {
     describe('req', function () {
       it('should be required', function () {
         proxyaddr.all.bind().should.throw(/req.*required/);
+      });
+    });
+
+    describe('trust', function () {
+      it('should be optional', function () {
+        var req = createReq('127.0.0.1');
+        proxyaddr.all.bind(null, req).should.not.throw();
       });
     });
   });
@@ -285,7 +292,7 @@ describe('proxyaddr.all(req)', function () {
   describe('with no headers', function () {
     it('should return socket address', function () {
       var req = createReq('127.0.0.1');
-      proxyaddr.all(req, all).should.eql(['127.0.0.1']);
+      proxyaddr.all(req).should.eql(['127.0.0.1']);
     });
   });
 
@@ -294,14 +301,23 @@ describe('proxyaddr.all(req)', function () {
       var req = createReq('127.0.0.1', {
         'x-forwarded-for': '10.0.0.1'
       });
-      proxyaddr.all(req, all).should.eql(['127.0.0.1', '10.0.0.1']);
+      proxyaddr.all(req).should.eql(['127.0.0.1', '10.0.0.1']);
     });
 
     it('should include x-forwarded-for in correct order', function () {
       var req = createReq('127.0.0.1', {
         'x-forwarded-for': '10.0.0.1, 10.0.0.2'
       });
-      proxyaddr.all(req, all).should.eql(['127.0.0.1', '10.0.0.2', '10.0.0.1']);
+      proxyaddr.all(req).should.eql(['127.0.0.1', '10.0.0.2', '10.0.0.1']);
+    });
+  });
+
+  describe('with trust argument', function () {
+    it('should stop at first untrusted', function () {
+      var req = createReq('127.0.0.1', {
+        'x-forwarded-for': '10.0.0.1, 10.0.0.2'
+      });
+      proxyaddr.all(req, '127.0.0.1').should.eql(['127.0.0.1', '10.0.0.2']);
     });
   });
 });

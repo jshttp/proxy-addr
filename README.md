@@ -52,10 +52,18 @@ in addition to IP addresses, which expand into IP addresses:
   * `uniquelocal`: IPv4 private addresses and IPv6 unique-local
     addresses (like `fc00:ac:1ab5:fff::1` and `192.168.0.1`).
 
-### proxyaddr.all(req, trust)
+### proxyaddr.all(req, [trust])
 
-Return all the addresses of the request. This array is ordered from
-closest to furthest (i.e. `arr[0] === req.connection.remoteAddress`).
+Return all the addresses of the request, optionally stopping at the
+first untrusted. This array is ordered from closest to furthest
+(i.e. `arr[0] === req.connection.remoteAddress`).
+
+    proxyaddr.all(req)
+
+The optional `trust` argument takes the same arguments as `trust`
+does in `proxyaddr(req, trust)`.
+
+    proxyaddr.all(req, 'loopback')
 
 ### proxyaddr.compile(val)
 
