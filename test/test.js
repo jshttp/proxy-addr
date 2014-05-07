@@ -26,6 +26,21 @@ describe('proxyaddr(req, trust)', function () {
         proxyaddr.bind(null, req, []).should.not.throw();
       });
 
+      it('should accept an array of IPv4', function () {
+        var req = createReq('127.0.0.1');
+        proxyaddr.bind(null, req, ['127.0.0.1']).should.not.throw();
+      });
+
+      it('should accept an array of IPv4-style IPv6', function () {
+        var req = createReq('127.0.0.1');
+        proxyaddr.bind(null, req, ['::1']).should.not.throw();
+      });
+
+      it('should accept an array of IPv6', function () {
+        var req = createReq('127.0.0.1');
+        proxyaddr.bind(null, req, ['::ffff:127.0.0.1']).should.not.throw();
+      });
+
       it('should reject non-IP', function () {
         var req = createReq('127.0.0.1');
         proxyaddr.bind(null, req, ['blargh']).should.throw(/invalid IP address/);
@@ -117,6 +132,13 @@ describe('proxyaddr(req, trust)', function () {
         'x-forwarded-for': '192.168.0.1, 10.0.0.2'
       });
       proxyaddr(req, ['10.0.0.1', '10.0.0.2']).should.equal('192.168.0.1');
+    });
+
+    it('should not trust non-IP addresses', function () {
+      var req = createReq('10.0.0.1', {
+        'x-forwarded-for': '192.168.0.1, 10.0.0.2, localhost'
+      });
+      proxyaddr(req, ['10.0.0.1', '10.0.0.2']).should.equal('localhost');
     });
 
     describe('when array empty', function () {
