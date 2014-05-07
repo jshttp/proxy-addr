@@ -26,32 +26,37 @@ describe('proxyaddr(req, trust)', function () {
         proxyaddr.bind(null, req, []).should.not.throw();
       });
 
-      it('should accept an array of IPv4', function () {
+      it('should accept a string', function () {
         var req = createReq('127.0.0.1');
-        proxyaddr.bind(null, req, ['127.0.0.1']).should.not.throw();
+        proxyaddr.bind(null, req, '127.0.0.1').should.not.throw();
       });
 
-      it('should accept an array of IPv4-style IPv6', function () {
+      it('should accept IPv4', function () {
         var req = createReq('127.0.0.1');
-        proxyaddr.bind(null, req, ['::1']).should.not.throw();
+        proxyaddr.bind(null, req, '127.0.0.1').should.not.throw();
       });
 
-      it('should accept an array of IPv6', function () {
+      it('should accept IPv6', function () {
         var req = createReq('127.0.0.1');
-        proxyaddr.bind(null, req, ['::ffff:127.0.0.1']).should.not.throw();
+        proxyaddr.bind(null, req, '::1').should.not.throw();
+      });
+
+      it('should accept IPv4-style IPv6', function () {
+        var req = createReq('127.0.0.1');
+        proxyaddr.bind(null, req, '::ffff:127.0.0.1').should.not.throw();
       });
 
       it('should reject non-IP', function () {
         var req = createReq('127.0.0.1');
-        proxyaddr.bind(null, req, ['blargh']).should.throw(/invalid IP address/);
+        proxyaddr.bind(null, req, 'blargh').should.throw(/invalid IP address/);
       });
 
       it('should reject bad CIDR', function () {
         var req = createReq('127.0.0.1');
-        proxyaddr.bind(null, req, ['10.0.0.1/6000']).should.throw(/invalid range on address/);
-        proxyaddr.bind(null, req, ['::1/6000']).should.throw(/invalid range on address/);
-        proxyaddr.bind(null, req, ['::ffff:a00:2/136']).should.throw(/invalid range on address/);
-        proxyaddr.bind(null, req, ['::ffff:a00:2/46']).should.throw(/invalid range on address/);
+        proxyaddr.bind(null, req, '10.0.0.1/6000').should.throw(/invalid range on address/);
+        proxyaddr.bind(null, req, '::1/6000').should.throw(/invalid range on address/);
+        proxyaddr.bind(null, req, '::ffff:a00:2/136').should.throw(/invalid range on address/);
+        proxyaddr.bind(null, req, '::ffff:a00:2/46').should.throw(/invalid range on address/);
       });
     });
   });
@@ -168,14 +173,14 @@ describe('proxyaddr(req, trust)', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.200'
       });
-      proxyaddr(req, ['10.0.0.2/26']).should.equal('10.0.0.200');
+      proxyaddr(req, '10.0.0.2/26').should.equal('10.0.0.200');
     });
 
     it('should accept netmask notation', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.200'
       });
-      proxyaddr(req, ['10.0.0.2/255.255.255.192']).should.equal('10.0.0.200');
+      proxyaddr(req, '10.0.0.2/255.255.255.192').should.equal('10.0.0.200');
     });
   });
 
@@ -191,14 +196,14 @@ describe('proxyaddr(req, trust)', function () {
       var req = createReq('fe80::1', {
         'x-forwarded-for': '2002:c000:203::1, fe80::ff00'
       });
-      proxyaddr(req, ['fe80::/125']).should.equal('fe80::ff00');
+      proxyaddr(req, 'fe80::/125').should.equal('fe80::ff00');
     });
 
     it('should accept netmask notation', function () {
       var req = createReq('fe80::1', {
         'x-forwarded-for': '2002:c000:203::1, fe80::ff00'
       });
-      proxyaddr(req, ['fe80::/ffff:ffff:ffff:ffff:ffff:ffff:ffff:fff8']).should.equal('fe80::ff00');
+      proxyaddr(req, 'fe80::/ffff:ffff:ffff:ffff:ffff:ffff:ffff:fff8').should.equal('fe80::ff00');
     });
   });
 
@@ -230,14 +235,14 @@ describe('proxyaddr(req, trust)', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.200'
       });
-      proxyaddr(req, ['::ffff:a00:2/122']).should.equal('10.0.0.200');
+      proxyaddr(req, '::ffff:a00:2/122').should.equal('10.0.0.200');
     });
 
     it('should match subnet notation for IPv4-mapped address', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.200'
       });
-      proxyaddr(req, ['::ffff:a00:2/ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffc0']).should.equal('10.0.0.200');
+      proxyaddr(req, '::ffff:a00:2/ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffc0').should.equal('10.0.0.200');
     });
   });
 });

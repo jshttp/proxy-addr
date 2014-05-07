@@ -47,16 +47,20 @@ function alladdrs(req) {
 /**
  * Compile argument into trust function.
  *
- * @param {Array} arg
+ * @param {Array|String} val
  * @api private
  */
 
-function compile(arg) {
-  if (!Array.isArray(arg)) {
+function compile(val) {
+  var trust = typeof val === 'string'
+    ? [val]
+    : val;
+
+  if (!Array.isArray(trust)) {
     throw new TypeError('unsupported trust argument');
   }
 
-  return compileTrust(compileRangeSubnets(arg));
+  return compileTrust(compileRangeSubnets(trust));
 }
 
 /**
