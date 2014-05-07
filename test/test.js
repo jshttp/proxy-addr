@@ -306,6 +306,55 @@ describe('proxyaddr.all(req)', function () {
   });
 });
 
+describe('proxyaddr.compile(trust)', function () {
+  describe('arguments', function () {
+    describe('trust', function () {
+      it('should be required', function () {
+        proxyaddr.compile.bind(null).should.throw(/argument.*required/);
+      });
+
+      it('should accept an array', function () {
+        proxyaddr.compile([]).should.be.function;
+      });
+
+      it('should accept a string', function () {
+        proxyaddr.compile('127.0.0.1').should.be.function;
+      });
+
+      it('should accept IPv4', function () {
+        proxyaddr.compile('127.0.0.1').should.be.function;
+      });
+
+      it('should accept IPv6', function () {
+        proxyaddr.compile('::1').should.be.function;
+      });
+
+      it('should accept IPv4-style IPv6', function () {
+        proxyaddr.compile('::ffff:127.0.0.1').should.be.function;
+      });
+
+      it('should accept pre-defined names', function () {
+        proxyaddr.compile('loopback').should.be.function;
+      });
+
+      it('should accept pre-defined names in array', function () {
+        proxyaddr.compile(['loopback', '10.0.0.1']).should.be.function;
+      });
+
+      it('should reject non-IP', function () {
+        proxyaddr.compile.bind(null, 'blargh').should.throw(/invalid IP address/);
+      });
+
+      it('should reject bad CIDR', function () {
+        proxyaddr.compile.bind(null, '10.0.0.1/6000').should.throw(/invalid range on address/);
+        proxyaddr.compile.bind(null, '::1/6000').should.throw(/invalid range on address/);
+        proxyaddr.compile.bind(null, '::ffff:a00:2/136').should.throw(/invalid range on address/);
+        proxyaddr.compile.bind(null, '::ffff:a00:2/46').should.throw(/invalid range on address/);
+      });
+    });
+  });
+});
+
 function createReq(socketAddr, headers) {
   return {
     connection: {

@@ -57,6 +57,15 @@ in addition to IP addresses, which expand into IP addresses:
 Return all the addresses of the request. This array is ordered from
 closest to furthest (i.e. `arr[0] === req.connection.remoteAddress`).
 
+### proxyaddr.compile(val)
+
+Compiles argument `val` into a `trust` function. This function takes
+the same arguments as `trust` does in `proxyaddr(req, trust)` and
+returns a function suitable for `proxyaddr(req, trust)`.
+
+    var trust = proxyaddr.compile('localhost')
+    var addr  = proxyaddr(req, trust)
+
 ## License
 
 [MIT](LICENSE)

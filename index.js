@@ -10,6 +10,7 @@
 
 module.exports = proxyaddr;
 module.exports.all = alladdrs;
+module.exports.compile = compile;
 
 /**
  * Module dependencies.
@@ -62,6 +63,10 @@ function alladdrs(req) {
  */
 
 function compile(val) {
+  if (!val) {
+    throw new TypeError('argument is required');
+  }
+
   var trust = typeof val === 'string'
     ? [val]
     : val;
