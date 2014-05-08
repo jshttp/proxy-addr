@@ -19,6 +19,7 @@ the address, `false` if you don't. The closest untrusted address is
 returned.
 
     proxyaddr(req, function(addr){ return addr === '127.0.0.1' })
+    proxyaddr(req, function(addr, i){ return i < 1 })
 
 The `trust` arugment may also be a single IP address string or an
 array of trusted addresses, as plain IP addresses, CIDR-formatted
@@ -51,6 +52,12 @@ in addition to IP addresses, which expand into IP addresses:
     `fe80::1:1:1:1` and `169.254.0.1`).
   * `uniquelocal`: IPv4 private addresses and IPv6 unique-local
     addresses (like `fc00:ac:1ab5:fff::1` and `192.168.0.1`).
+
+When `trust` is specified as a function, it will be called for each
+address to determine if it is a trusted address. The function is
+given two arguments: `addr` and `i`, where `addr` is a string of
+the address to check and `i` is a number that represents the distance
+from the socket address.
 
 ### proxyaddr.all(req, [trust])
 

@@ -68,6 +68,22 @@ describe('proxyaddr(req, trust)', function () {
         proxyaddr.bind(null, req, '::ffff:a00:2/136').should.throw(/invalid range on address/);
         proxyaddr.bind(null, req, '::ffff:a00:2/46').should.throw(/invalid range on address/);
       });
+
+      it('should be invoked as trust(addr, i)', function () {
+        var log = [];
+        var req = createReq('127.0.0.1', {
+          'x-forwarded-for': '192.168.0.1, 10.0.0.1'
+        });
+
+        proxyaddr(req, function (addr, i) {
+          return log.push(Array.prototype.slice.call(arguments));
+        });
+
+        log.should.eql([
+          ['127.0.0.1', 0],
+          ['10.0.0.1', 1]
+        ]);
+      });
     });
   });
 
@@ -318,6 +334,13 @@ describe('proxyaddr.all(req, [trust])', function () {
         'x-forwarded-for': '10.0.0.1, 10.0.0.2'
       });
       proxyaddr.all(req, '127.0.0.1').should.eql(['127.0.0.1', '10.0.0.2']);
+    });
+
+    it('should be only socket address for no trust', function () {
+      var req = createReq('127.0.0.1', {
+        'x-forwarded-for': '10.0.0.1, 10.0.0.2'
+      });
+      proxyaddr.all(req, []).should.eql(['127.0.0.1']);
     });
   });
 });
