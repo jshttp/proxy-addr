@@ -4,11 +4,15 @@ Determine address of proxied request
 
 ## Install
 
-    npm install proxy-addr
+```sh
+$ npm install proxy-addr
+```
 
 ## API
 
-    var proxyaddr = require('proxy-addr');
+```js
+var proxyaddr = require('proxy-addr')
+```
 
 ### proxyaddr(req, trust)
 
@@ -18,23 +22,29 @@ The `trust` argument is a function that returns `true` if you trust
 the address, `false` if you don't. The closest untrusted address is
 returned.
 
-    proxyaddr(req, function(addr){ return addr === '127.0.0.1' })
-    proxyaddr(req, function(addr, i){ return i < 1 })
+```js
+proxyaddr(req, function(addr){ return addr === '127.0.0.1' })
+proxyaddr(req, function(addr, i){ return i < 1 })
+```
 
 The `trust` arugment may also be a single IP address string or an
 array of trusted addresses, as plain IP addresses, CIDR-formatted
 strings, or IP/netmask strings.
 
-    proxyaddr(req, '127.0.0.1')
-    proxyaddr(req, ['127.0.0.0/8', '10.0.0.0/8'])
-    proxyaddr(req, ['127.0.0.0/255.0.0.0', '192.168.0.0/255.255.0.0'])
+```js
+proxyaddr(req, '127.0.0.1')
+proxyaddr(req, ['127.0.0.0/8', '10.0.0.0/8'])
+proxyaddr(req, ['127.0.0.0/255.0.0.0', '192.168.0.0/255.255.0.0'])
+```
 
 This module also supports IPv6. Your IPv6 addresses will be normalized
 automatically (i.e. `fe80::00ed:1` equals `fe80:0:0:0:0:0:ed:1`).
 
-    proxyaddr(req, '::1')
-    proxyaddr(req, ['::1/128', 'fe80::/10'])
-    proxyaddr(req, ['fe80::/ffc0::'])
+```js
+proxyaddr(req, '::1')
+proxyaddr(req, ['::1/128', 'fe80::/10'])
+proxyaddr(req, ['fe80::/ffc0::'])
+```
 
 This module will automatically work with IPv4-mapped IPv6 addresses
 as well to support node.js in IPv6-only mode. This means that you do
@@ -43,8 +53,10 @@ not have to specify both `::ffff:a00:1` and `10.0.0.1`.
 As a convenience, this module also takes certain pre-defined names
 in addition to IP addresses, which expand into IP addresses:
 
-    proxyaddr(req, 'loopback')
-    proxyaddr(req, ['loopback', 'fc00:ac:1ab5:fff::1/64'])
+```js
+proxyaddr(req, 'loopback')
+proxyaddr(req, ['loopback', 'fc00:ac:1ab5:fff::1/64'])
+```
 
   * `loopback`: IPv4 and IPv6 loopback addresses (like `::1` and
     `127.0.0.1`).
@@ -65,12 +77,16 @@ Return all the addresses of the request, optionally stopping at the
 first untrusted. This array is ordered from closest to furthest
 (i.e. `arr[0] === req.connection.remoteAddress`).
 
-    proxyaddr.all(req)
+```js
+proxyaddr.all(req)
+```
 
 The optional `trust` argument takes the same arguments as `trust`
 does in `proxyaddr(req, trust)`.
 
-    proxyaddr.all(req, 'loopback')
+```js
+proxyaddr.all(req, 'loopback')
+```
 
 ### proxyaddr.compile(val)
 
@@ -78,8 +94,10 @@ Compiles argument `val` into a `trust` function. This function takes
 the same arguments as `trust` does in `proxyaddr(req, trust)` and
 returns a function suitable for `proxyaddr(req, trust)`.
 
-    var trust = proxyaddr.compile('localhost')
-    var addr  = proxyaddr(req, trust)
+```js
+var trust = proxyaddr.compile('localhost')
+var addr  = proxyaddr(req, trust)
+```
 
 This function is meant to be optimized for use against every request.
 It is recommend to compile a trust function up-front for the trusted
