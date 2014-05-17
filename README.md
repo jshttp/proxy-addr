@@ -103,6 +103,18 @@ This function is meant to be optimized for use against every request.
 It is recommend to compile a trust function up-front for the trusted
 configuration and pass that to `proxyaddr(req, trust)` for each request.
 
+## Testing
+
+```sh
+$ npm test
+```
+
+## Benchmarks
+
+```sh
+$ npm run-script bench
+```
+
 ## License
 
 [MIT](LICENSE)

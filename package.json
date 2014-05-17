@@ -20,6 +20,8 @@
     "ipaddr.js": "0.1.2"
   },
   "devDependencies": {
+    "benchmark": "1.0.0",
+    "beautify-benchmark": "0.2.4",
     "mocha": "~1.18.2",
     "should": "~3.3.1"
   },
@@ -27,6 +29,7 @@
     "node": ">= 0.8.0"
   },
   "scripts": {
+    "bench": "node benchmark/index.js",
     "test": "mocha --reporter spec test/"
   }
 }
