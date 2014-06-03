@@ -23,7 +23,7 @@
     "benchmark": "1.0.0",
     "beautify-benchmark": "0.2.4",
     "mocha": "~1.20.0",
-    "should": "~3.3.1"
+    "should": "~4.0.0"
   },
   "engines": {
     "node": ">= 0.8.0"
