@@ -1,3 +1,8 @@
+unreleased
+==========
+
+  * Fix links in npm package
+
 1.0.0 / 2014-05-08
 ==================
 
