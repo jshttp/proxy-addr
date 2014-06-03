@@ -22,6 +22,7 @@
   "devDependencies": {
     "benchmark": "1.0.0",
     "beautify-benchmark": "0.2.4",
+    "istanbul": "0.2.10",
     "mocha": "~1.20.0",
     "should": "~4.0.0"
   },
@@ -30,6 +31,8 @@
   },
   "scripts": {
     "bench": "node benchmark/index.js",
-    "test": "mocha --reporter spec test/"
+    "test": "mocha --reporter dot test/",
+    "test-cov": "istanbul cover node_modules/mocha/bin/_mocha -- --reporter dot test/",
+    "test-travis": "istanbul cover node_modules/mocha/bin/_mocha --report lcovonly -- --reporter spec test/"
   }
 }
