@@ -11,10 +11,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/expressjs/proxy-ip.git"
+    "url": "https://github.com/expressjs/proxy-addr.git"
   },
   "bugs": {
-    "url": "https://github.com/expressjs/proxy-ip/issues"
+    "url": "https://github.com/expressjs/proxy-addr/issues"
   },
   "dependencies": {
     "ipaddr.js": "0.1.2"
