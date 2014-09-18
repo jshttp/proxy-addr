@@ -170,9 +170,9 @@ function parseipNotation(note) {
   ip = parseip(ip);
 
   kind = ip.kind();
-  max = kind === 'ipv4' ? 32
-    : kind === 'ipv6' ? 128
-    : 0;
+  max = kind === 'ipv6'
+    ? 128
+    : 32;
 
   range = pos !== -1
     ? note.substring(pos + 1, note.length)
@@ -222,8 +222,6 @@ function parseNetmask(netmask) {
       parts = ip.parts;
       size = 16;
       break;
-    default:
-      throw new TypeError('unknown netmask');
   }
 
   var max = Math.pow(2, size) - 1;
