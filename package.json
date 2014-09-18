@@ -9,13 +9,7 @@
     "proxy",
     "x-forwarded-for"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/expressjs/proxy-addr.git"
-  },
-  "bugs": {
-    "url": "https://github.com/expressjs/proxy-addr/issues"
-  },
+  "repository": "proxy-addr",
   "dependencies": {
     "ipaddr.js": "0.1.2"
   },
