@@ -1,3 +1,8 @@
+unreleased
+==========
+
+  * Fix a global leak when multiple subnets are trusted
+
 1.0.1 / 2014-06-03
 ==================
 

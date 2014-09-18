@@ -299,6 +299,7 @@ function trustMulti(subnets) {
     var subnet;
     var subnetip;
     var subnetkind;
+    var subnetrange;
     var trusted;
 
     for (var i = 0; i < subnets.length; i++) {
