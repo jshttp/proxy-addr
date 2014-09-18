@@ -69,6 +69,7 @@ describe('proxyaddr(req, trust)', function () {
 
       it('should reject bad CIDR', function () {
         var req = createReq('127.0.0.1');
+        proxyaddr.bind(null, req, '10.0.0.1/internet').should.throw(/invalid range on address/);
         proxyaddr.bind(null, req, '10.0.0.1/6000').should.throw(/invalid range on address/);
         proxyaddr.bind(null, req, '::1/6000').should.throw(/invalid range on address/);
         proxyaddr.bind(null, req, '::ffff:a00:2/136').should.throw(/invalid range on address/);
