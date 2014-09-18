@@ -1,5 +1,5 @@
-unreleased
-==========
+1.0.2 / 2014-09-18
+==================
 
   * Fix a global leak when multiple subnets are trusted
   * Support Node.js 0.6
