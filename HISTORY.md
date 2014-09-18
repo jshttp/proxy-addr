@@ -2,6 +2,7 @@ unreleased
 ==========
 
   * Fix a global leak when multiple subnets are trusted
+  * Support Node.js 0.6
   * deps: ipaddr.js@0.1.3
 
 1.0.1 / 2014-06-03
