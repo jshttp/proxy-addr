@@ -9,7 +9,7 @@
     "proxy",
     "x-forwarded-for"
   ],
-  "repository": "proxy-addr",
+  "repository": "jshttp/proxy-addr",
   "dependencies": {
     "ipaddr.js": "0.1.3"
   },

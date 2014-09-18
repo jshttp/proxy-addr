@@ -1,8 +1,8 @@
 # proxy-addr
 
 [![NPM version](https://badge.fury.io/js/proxy-addr.svg)](http://badge.fury.io/js/proxy-addr)
-[![Build Status](https://travis-ci.org/expressjs/proxy-addr.svg?branch=master)](https://travis-ci.org/expressjs/proxy-addr)
-[![Coverage Status](https://img.shields.io/coveralls/expressjs/proxy-addr.svg?branch=master)](https://coveralls.io/r/expressjs/proxy-addr)
+[![Build Status](https://travis-ci.org/jshttp/proxy-addr.svg?branch=master)](https://travis-ci.org/jshttp/proxy-addr)
+[![Coverage Status](https://img.shields.io/coveralls/jshttp/proxy-addr.svg?branch=master)](https://coveralls.io/r/jshttp/proxy-addr)
 
 Determine address of proxied request
 
