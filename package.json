@@ -20,6 +20,12 @@
     "mocha": "~1.21.4",
     "should": "~4.0.0"
   },
+  "files": [
+    "LICENSE",
+    "HISTORY.md",
+    "README.md",
+    "index.js"
+  ],
   "engines": {
     "node": ">= 0.8.0"
   },
