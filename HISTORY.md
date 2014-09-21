@@ -1,5 +1,5 @@
-unreleased
-==========
+1.0.3 / 2014-09-21
+==================
 
   * Use `forwarded` npm module
 
