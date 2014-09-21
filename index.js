@@ -16,6 +16,7 @@ module.exports.compile = compile;
  * Module dependencies.
  */
 
+var forwarded = require('forwarded');
 var ipaddr = require('ipaddr.js');
 
 /**
@@ -46,16 +47,8 @@ var ipranges = {
  */
 
 function alladdrs(req, trust) {
-  if (!req) {
-    throw new TypeError('req argument is required');
-  }
-
-  var proxyAddrs = (req.headers['x-forwarded-for'] || '')
-    .split(/ *, */)
-    .filter(Boolean)
-    .reverse();
-  var socketAddr = req.connection.remoteAddress;
-  var addrs = [socketAddr].concat(proxyAddrs);
+  // get addresses
+  var addrs = forwarded(req);
 
   if (!trust) {
     // Return all addresses

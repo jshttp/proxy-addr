@@ -1,3 +1,8 @@
+unreleased
+==========
+
+  * Use `forwarded` npm module
+
 1.0.2 / 2014-09-18
 ==================
 
