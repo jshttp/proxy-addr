@@ -65,6 +65,7 @@ describe('proxyaddr(req, trust)', function () {
         var req = createReq('127.0.0.1');
         assert.throws(proxyaddr.bind(null, req, 'blargh'), /invalid IP address/);
         assert.throws(proxyaddr.bind(null, req, '10.0.300.1/16'), /invalid IP address/);
+        assert.throws(proxyaddr.bind(null, req, '-1'), /invalid IP address/);
       });
 
       it('should reject bad CIDR', function () {
@@ -440,6 +441,7 @@ describe('proxyaddr.compile(trust)', function () {
 
       it('should reject non-IP', function () {
         assert.throws(proxyaddr.compile.bind(null, 'blargh'), /invalid IP address/);
+        assert.throws(proxyaddr.compile.bind(null, '-1'), /invalid IP address/);
       });
 
       it('should reject bad CIDR', function () {

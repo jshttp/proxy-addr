@@ -1,3 +1,9 @@
+unreleased
+==========
+
+  * deps: ipaddr.js@0.1.5
+    - Fix edge cases with `isValid`
+
 1.0.3 / 2014-09-21
 ==================
 
