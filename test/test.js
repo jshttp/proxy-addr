@@ -1,79 +1,79 @@
 
+var assert = require('assert');
 var proxyaddr = require('..');
-var should = require('should');
 
 describe('proxyaddr(req, trust)', function () {
   describe('arguments', function () {
     describe('req', function () {
       it('should be required', function () {
-        proxyaddr.bind().should.throw(/req.*required/);
+        assert.throws(proxyaddr, /req.*required/);
       });
     });
 
     describe('trust', function () {
       it('should be required', function () {
         var req = createReq('127.0.0.1');
-        proxyaddr.bind(null, req).should.throw(/trust.*required/);
+        assert.throws(proxyaddr.bind(null, req), /trust.*required/);
       });
 
       it('should accept a function', function () {
         var req = createReq('127.0.0.1');
-        proxyaddr.bind(null, req, all).should.not.throw();
+        assert.doesNotThrow(proxyaddr.bind(null, req, all));
       });
 
       it('should accept an array', function () {
         var req = createReq('127.0.0.1');
-        proxyaddr.bind(null, req, []).should.not.throw();
+        assert.doesNotThrow(proxyaddr.bind(null, req, []));
       });
 
       it('should accept a string', function () {
         var req = createReq('127.0.0.1');
-        proxyaddr.bind(null, req, '127.0.0.1').should.not.throw();
+        assert.doesNotThrow(proxyaddr.bind(null, req, '127.0.0.1'));
       });
 
       it('should reject a number', function () {
         var req = createReq('127.0.0.1');
-        proxyaddr.bind(null, req, 42).should.throw(/unsupported trust argument/);
+        assert.throws(proxyaddr.bind(null, req, 42), /unsupported trust argument/);
       });
 
       it('should accept IPv4', function () {
         var req = createReq('127.0.0.1');
-        proxyaddr.bind(null, req, '127.0.0.1').should.not.throw();
+        assert.doesNotThrow(proxyaddr.bind(null, req, '127.0.0.1'));
       });
 
       it('should accept IPv6', function () {
         var req = createReq('127.0.0.1');
-        proxyaddr.bind(null, req, '::1').should.not.throw();
+        assert.doesNotThrow(proxyaddr.bind(null, req, '::1'));
       });
 
       it('should accept IPv4-style IPv6', function () {
         var req = createReq('127.0.0.1');
-        proxyaddr.bind(null, req, '::ffff:127.0.0.1').should.not.throw();
+        assert.doesNotThrow(proxyaddr.bind(null, req, '::ffff:127.0.0.1'));
       });
 
       it('should accept pre-defined names', function () {
         var req = createReq('127.0.0.1');
-        proxyaddr.bind(null, req, 'loopback').should.not.throw();
+        assert.doesNotThrow(proxyaddr.bind(null, req, 'loopback'));
       });
 
       it('should accept pre-defined names in array', function () {
         var req = createReq('127.0.0.1');
-        proxyaddr.bind(null, req, ['loopback', '10.0.0.1']).should.not.throw();
+        assert.doesNotThrow(proxyaddr.bind(null, req, ['loopback', '10.0.0.1']));
       });
 
       it('should reject non-IP', function () {
         var req = createReq('127.0.0.1');
-        proxyaddr.bind(null, req, 'blargh').should.throw(/invalid IP address/);
-        proxyaddr.bind(null, req, '10.0.300.1/16').should.throw(/invalid IP address/);
+        assert.throws(proxyaddr.bind(null, req, 'blargh'), /invalid IP address/);
+        assert.throws(proxyaddr.bind(null, req, '10.0.300.1/16'), /invalid IP address/);
       });
 
       it('should reject bad CIDR', function () {
         var req = createReq('127.0.0.1');
-        proxyaddr.bind(null, req, '10.0.0.1/internet').should.throw(/invalid range on address/);
-        proxyaddr.bind(null, req, '10.0.0.1/6000').should.throw(/invalid range on address/);
-        proxyaddr.bind(null, req, '::1/6000').should.throw(/invalid range on address/);
-        proxyaddr.bind(null, req, '::ffff:a00:2/136').should.throw(/invalid range on address/);
-        proxyaddr.bind(null, req, '::ffff:a00:2/46').should.throw(/invalid range on address/);
+        assert.throws(proxyaddr.bind(null, req, '10.0.0.1/internet'), /invalid range on address/);
+        assert.throws(proxyaddr.bind(null, req, '10.0.0.1/6000'), /invalid range on address/);
+        assert.throws(proxyaddr.bind(null, req, '::1/6000'), /invalid range on address/);
+        assert.throws(proxyaddr.bind(null, req, '::ffff:a00:2/136'), /invalid range on address/);
+        assert.throws(proxyaddr.bind(null, req, '::ffff:a00:2/46'), /invalid range on address/);
       });
 
       it('should be invoked as trust(addr, i)', function () {
@@ -86,7 +86,7 @@ describe('proxyaddr(req, trust)', function () {
           return log.push(Array.prototype.slice.call(arguments));
         });
 
-        log.should.eql([
+        assert.deepEqual(log, [
           ['127.0.0.1', 0],
           ['10.0.0.1', 1]
         ]);
@@ -97,70 +97,70 @@ describe('proxyaddr(req, trust)', function () {
   describe('with all trusted', function () {
     it('should return socket address with no headers', function () {
       var req = createReq('127.0.0.1');
-      proxyaddr(req, all).should.equal('127.0.0.1');
+      assert.equal(proxyaddr(req, all), '127.0.0.1');
     });
 
     it('should return header value', function () {
       var req = createReq('127.0.0.1', {
         'x-forwarded-for': '10.0.0.1'
       });
-      proxyaddr(req, all).should.equal('10.0.0.1');
+      assert.equal(proxyaddr(req, all), '10.0.0.1');
     });
 
     it('should return furthest header value', function () {
       var req = createReq('127.0.0.1', {
         'x-forwarded-for': '10.0.0.1, 10.0.0.2'
       });
-      proxyaddr(req, all).should.equal('10.0.0.1');
+      assert.equal(proxyaddr(req, all), '10.0.0.1');
     });
   });
 
   describe('with none trusted', function () {
     it('should return socket address with no headers', function () {
       var req = createReq('127.0.0.1');
-      proxyaddr(req, none).should.equal('127.0.0.1');
+      assert.equal(proxyaddr(req, none), '127.0.0.1');
     });
 
     it('should return socket address with headers', function () {
       var req = createReq('127.0.0.1', {
         'x-forwarded-for': '10.0.0.1, 10.0.0.2'
       });
-      proxyaddr(req, none).should.equal('127.0.0.1');
+      assert.equal(proxyaddr(req, none), '127.0.0.1');
     });
   });
 
   describe('with some trusted', function () {
     it('should return socket address with no headers', function () {
       var req = createReq('127.0.0.1');
-      proxyaddr(req, trust10x).should.equal('127.0.0.1');
+      assert.equal(proxyaddr(req, trust10x), '127.0.0.1');
     });
 
     it('should return socket address when not trusted', function () {
       var req = createReq('127.0.0.1', {
         'x-forwarded-for': '10.0.0.1, 10.0.0.2'
       });
-      proxyaddr(req, trust10x).should.equal('127.0.0.1');
+      assert.equal(proxyaddr(req, trust10x), '127.0.0.1');
     });
 
     it('should return header when socket trusted', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '192.168.0.1'
       });
-      proxyaddr(req, trust10x).should.equal('192.168.0.1');
+      assert.equal(proxyaddr(req, trust10x), '192.168.0.1');
     });
 
     it('should return first untrusted after trusted', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.2'
       });
-      proxyaddr(req, trust10x).should.equal('192.168.0.1');
+      assert.equal(proxyaddr(req, trust10x), '192.168.0.1');
     });
 
     it('should not skip untrusted', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '10.0.0.3, 192.168.0.1, 10.0.0.2'
       });
-      proxyaddr(req, trust10x).should.equal('192.168.0.1');
+      assert.equal(proxyaddr(req, trust10x), '192.168.0.1');
     });
   });
 
@@ -169,34 +169,34 @@ describe('proxyaddr(req, trust)', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.2'
       });
-      proxyaddr(req, ['10.0.0.1', '10.0.0.2']).should.equal('192.168.0.1');
+      assert.equal(proxyaddr(req, ['10.0.0.1', '10.0.0.2']), '192.168.0.1');
     });
 
     it('should not trust non-IP addresses', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.2, localhost'
       });
-      proxyaddr(req, ['10.0.0.1', '10.0.0.2']).should.equal('localhost');
+      assert.equal(proxyaddr(req, ['10.0.0.1', '10.0.0.2']), 'localhost');
     });
 
     it('should return socket address if none match', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.2'
       });
-      proxyaddr(req, ['127.0.0.1', '192.168.0.100']).should.equal('10.0.0.1');
+      assert.equal(proxyaddr(req, ['127.0.0.1', '192.168.0.100']), '10.0.0.1');
     });
 
     describe('when array empty', function () {
       it('should return socket address ', function () {
         var req = createReq('127.0.0.1');
-        proxyaddr(req, []).should.equal('127.0.0.1');
+        assert.equal(proxyaddr(req, []), '127.0.0.1');
       });
 
       it('should return socket address with headers', function () {
         var req = createReq('127.0.0.1', {
           'x-forwarded-for': '10.0.0.1, 10.0.0.2'
         });
-        proxyaddr(req, []).should.equal('127.0.0.1');
+        assert.equal(proxyaddr(req, []), '127.0.0.1');
       });
     });
   });
@@ -206,21 +206,21 @@ describe('proxyaddr(req, trust)', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.2'
       });
-      proxyaddr(req, ['10.0.0.1', '10.0.0.2']).should.equal('192.168.0.1');
+      assert.equal(proxyaddr(req, ['10.0.0.1', '10.0.0.2']), '192.168.0.1');
     });
 
     it('should accept CIDR notation', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.200'
       });
-      proxyaddr(req, '10.0.0.2/26').should.equal('10.0.0.200');
+      assert.equal(proxyaddr(req, '10.0.0.2/26'), '10.0.0.200');
     });
 
     it('should accept netmask notation', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.200'
       });
-      proxyaddr(req, '10.0.0.2/255.255.255.192').should.equal('10.0.0.200');
+      assert.equal(proxyaddr(req, '10.0.0.2/255.255.255.192'), '10.0.0.200');
     });
   });
 
@@ -229,21 +229,21 @@ describe('proxyaddr(req, trust)', function () {
       var req = createReq('fe80::1', {
         'x-forwarded-for': '2002:c000:203::1, fe80::2'
       });
-      proxyaddr(req, ['fe80::1', 'fe80::2']).should.equal('2002:c000:203::1');
+      assert.equal(proxyaddr(req, ['fe80::1', 'fe80::2']), '2002:c000:203::1');
     });
 
     it('should accept CIDR notation', function () {
       var req = createReq('fe80::1', {
         'x-forwarded-for': '2002:c000:203::1, fe80::ff00'
       });
-      proxyaddr(req, 'fe80::/125').should.equal('fe80::ff00');
+      assert.equal(proxyaddr(req, 'fe80::/125'), 'fe80::ff00');
     });
 
     it('should accept netmask notation', function () {
       var req = createReq('fe80::1', {
         'x-forwarded-for': '2002:c000:203::1, fe80::ff00'
       });
-      proxyaddr(req, 'fe80::/ffff:ffff:ffff:ffff:ffff:ffff:ffff:fff8').should.equal('fe80::ff00');
+      assert.equal(proxyaddr(req, 'fe80::/ffff:ffff:ffff:ffff:ffff:ffff:ffff:fff8'), 'fe80::ff00');
     });
   });
 
@@ -252,14 +252,14 @@ describe('proxyaddr(req, trust)', function () {
       var req = createReq('::1', {
         'x-forwarded-for': '2002:c000:203::1'
       });
-      proxyaddr(req, ['127.0.0.1', '::1']).should.equal('2002:c000:203::1');
+      assert.equal(proxyaddr(req, ['127.0.0.1', '::1']), '2002:c000:203::1');
     });
 
     it('should not match IPv4 to IPv6', function () {
       var req = createReq('::1', {
         'x-forwarded-for': '2002:c000:203::1'
       });
-      proxyaddr(req, '127.0.0.1').should.equal('::1');
+      assert.equal(proxyaddr(req, '127.0.0.1'), '::1');
     });
   });
 
@@ -268,35 +268,35 @@ describe('proxyaddr(req, trust)', function () {
       var req = createReq('::ffff:a00:1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.2'
       });
-      proxyaddr(req, ['10.0.0.1', '10.0.0.2']).should.equal('192.168.0.1');
+      assert.equal(proxyaddr(req, ['10.0.0.1', '10.0.0.2']), '192.168.0.1');
     });
 
     it('should match IPv4 netmask trust to IPv6 request', function () {
       var req = createReq('::ffff:a00:1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.2'
       });
-      proxyaddr(req, ['10.0.0.1/16']).should.equal('192.168.0.1');
+      assert.equal(proxyaddr(req, ['10.0.0.1/16']), '192.168.0.1');
     });
 
     it('should match IPv6 trust to IPv4 request', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.2'
       });
-      proxyaddr(req, ['::ffff:a00:1', '::ffff:a00:2']).should.equal('192.168.0.1');
+      assert.equal(proxyaddr(req, ['::ffff:a00:1', '::ffff:a00:2']), '192.168.0.1');
     });
 
     it('should match CIDR notation for IPv4-mapped address', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.200'
       });
-      proxyaddr(req, '::ffff:a00:2/122').should.equal('10.0.0.200');
+      assert.equal(proxyaddr(req, '::ffff:a00:2/122'), '10.0.0.200');
     });
 
     it('should match subnet notation for IPv4-mapped address', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.200'
       });
-      proxyaddr(req, '::ffff:a00:2/ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffc0').should.equal('10.0.0.200');
+      assert.equal(proxyaddr(req, '::ffff:a00:2/ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffc0'), '10.0.0.200');
     });
   });
 
@@ -305,14 +305,14 @@ describe('proxyaddr(req, trust)', function () {
       var req = createReq('fe80::1', {
         'x-forwarded-for': '2002:c000:203::1, fe80::2'
       });
-      proxyaddr(req, 'linklocal').should.equal('2002:c000:203::1');
+      assert.equal(proxyaddr(req, 'linklocal'), '2002:c000:203::1');
     });
 
     it('should accept multiple pre-defined names', function () {
       var req = createReq('::1', {
         'x-forwarded-for': '2002:c000:203::1, fe80::2'
       });
-      proxyaddr(req, ['loopback', 'linklocal']).should.equal('2002:c000:203::1');
+      assert.equal(proxyaddr(req, ['loopback', 'linklocal']), '2002:c000:203::1');
     });
   });
 
@@ -321,7 +321,7 @@ describe('proxyaddr(req, trust)', function () {
       var req = createReq('127.0.0.1', {
         'x-forwarded-for': 'myrouter, 127.0.0.1, proxy'
       });
-      proxyaddr(req, '127.0.0.1').should.equal('proxy');
+      assert.equal(proxyaddr(req, '127.0.0.1'), 'proxy');
     });
 
     it('should provide all values to function', function () {
@@ -334,7 +334,7 @@ describe('proxyaddr(req, trust)', function () {
         return log.push(Array.prototype.slice.call(arguments));
       });
 
-      log.should.eql([
+      assert.deepEqual(log, [
         ['127.0.0.1', 0],
         ['proxy', 1],
         ['127.0.0.1', 2]
@@ -347,14 +347,14 @@ describe('proxyaddr.all(req, [trust])', function () {
   describe('arguments', function () {
     describe('req', function () {
       it('should be required', function () {
-        proxyaddr.all.bind().should.throw(/req.*required/);
+        assert.throws(proxyaddr.all, /req.*required/);
       });
     });
 
     describe('trust', function () {
       it('should be optional', function () {
         var req = createReq('127.0.0.1');
-        proxyaddr.all.bind(null, req).should.not.throw();
+        assert.doesNotThrow(proxyaddr.all.bind(null, req));
       });
     });
   });
@@ -362,7 +362,7 @@ describe('proxyaddr.all(req, [trust])', function () {
   describe('with no headers', function () {
     it('should return socket address', function () {
       var req = createReq('127.0.0.1');
-      proxyaddr.all(req).should.eql(['127.0.0.1']);
+      assert.deepEqual(proxyaddr.all(req), ['127.0.0.1']);
     });
   });
 
@@ -371,14 +371,14 @@ describe('proxyaddr.all(req, [trust])', function () {
       var req = createReq('127.0.0.1', {
         'x-forwarded-for': '10.0.0.1'
       });
-      proxyaddr.all(req).should.eql(['127.0.0.1', '10.0.0.1']);
+      assert.deepEqual(proxyaddr.all(req), ['127.0.0.1', '10.0.0.1']);
     });
 
     it('should include x-forwarded-for in correct order', function () {
       var req = createReq('127.0.0.1', {
         'x-forwarded-for': '10.0.0.1, 10.0.0.2'
       });
-      proxyaddr.all(req).should.eql(['127.0.0.1', '10.0.0.2', '10.0.0.1']);
+      assert.deepEqual(proxyaddr.all(req), ['127.0.0.1', '10.0.0.2', '10.0.0.1']);
     });
   });
 
@@ -387,14 +387,14 @@ describe('proxyaddr.all(req, [trust])', function () {
       var req = createReq('127.0.0.1', {
         'x-forwarded-for': '10.0.0.1, 10.0.0.2'
       });
-      proxyaddr.all(req, '127.0.0.1').should.eql(['127.0.0.1', '10.0.0.2']);
+      assert.deepEqual(proxyaddr.all(req, '127.0.0.1'), ['127.0.0.1', '10.0.0.2']);
     });
 
     it('should be only socket address for no trust', function () {
       var req = createReq('127.0.0.1', {
         'x-forwarded-for': '10.0.0.1, 10.0.0.2'
       });
-      proxyaddr.all(req, []).should.eql(['127.0.0.1']);
+      assert.deepEqual(proxyaddr.all(req, []), ['127.0.0.1']);
     });
   });
 });
@@ -403,50 +403,50 @@ describe('proxyaddr.compile(trust)', function () {
   describe('arguments', function () {
     describe('trust', function () {
       it('should be required', function () {
-        proxyaddr.compile.bind(null).should.throw(/argument.*required/);
+        assert.throws(proxyaddr.compile, /argument.*required/);
       });
 
       it('should accept an array', function () {
-        proxyaddr.compile([]).should.be.function;
+        assert.equal(typeof proxyaddr.compile([]), 'function');
       });
 
       it('should accept a string', function () {
-        proxyaddr.compile('127.0.0.1').should.be.function;
+        assert.equal(typeof proxyaddr.compile('127.0.0.1'), 'function');
       });
 
       it('should reject a number', function () {
-        proxyaddr.compile.bind(null, 42).should.throw(/unsupported trust argument/);
+        assert.throws(proxyaddr.compile.bind(null, 42), /unsupported trust argument/);
       });
 
       it('should accept IPv4', function () {
-        proxyaddr.compile('127.0.0.1').should.be.function;
+        assert.equal(typeof proxyaddr.compile('127.0.0.1'), 'function');
       });
 
       it('should accept IPv6', function () {
-        proxyaddr.compile('::1').should.be.function;
+        assert.equal(typeof proxyaddr.compile('::1'), 'function');
       });
 
       it('should accept IPv4-style IPv6', function () {
-        proxyaddr.compile('::ffff:127.0.0.1').should.be.function;
+        assert.equal(typeof proxyaddr.compile('::ffff:127.0.0.1'), 'function');
       });
 
       it('should accept pre-defined names', function () {
-        proxyaddr.compile('loopback').should.be.function;
+        assert.equal(typeof proxyaddr.compile('loopback'), 'function');
       });
 
       it('should accept pre-defined names in array', function () {
-        proxyaddr.compile(['loopback', '10.0.0.1']).should.be.function;
+        assert.equal(typeof proxyaddr.compile(['loopback', '10.0.0.1']), 'function');
       });
 
       it('should reject non-IP', function () {
-        proxyaddr.compile.bind(null, 'blargh').should.throw(/invalid IP address/);
+        assert.throws(proxyaddr.compile.bind(null, 'blargh'), /invalid IP address/);
       });
 
       it('should reject bad CIDR', function () {
-        proxyaddr.compile.bind(null, '10.0.0.1/6000').should.throw(/invalid range on address/);
-        proxyaddr.compile.bind(null, '::1/6000').should.throw(/invalid range on address/);
-        proxyaddr.compile.bind(null, '::ffff:a00:2/136').should.throw(/invalid range on address/);
-        proxyaddr.compile.bind(null, '::ffff:a00:2/46').should.throw(/invalid range on address/);
+        assert.throws(proxyaddr.compile.bind(null, '10.0.0.1/6000'), /invalid range on address/);
+        assert.throws(proxyaddr.compile.bind(null, '::1/6000'), /invalid range on address/);
+        assert.throws(proxyaddr.compile.bind(null, '::ffff:a00:2/136'), /invalid range on address/);
+        assert.throws(proxyaddr.compile.bind(null, '::ffff:a00:2/46'), /invalid range on address/);
       });
     });
   });
