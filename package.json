@@ -12,7 +12,7 @@
   "repository": "jshttp/proxy-addr",
   "dependencies": {
     "forwarded": "~0.1.0",
-    "ipaddr.js": "0.1.5"
+    "ipaddr.js": "0.1.6"
   },
   "devDependencies": {
     "benchmark": "1.0.0",
