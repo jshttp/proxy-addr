@@ -1,3 +1,9 @@
+unreleased
+==========
+
+  * deps: ipaddr.js@0.1.9
+    - Fix OOM on certain inputs to `isValid`
+
 1.0.6 / 2015-02-01
 ==================
 

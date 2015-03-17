@@ -325,6 +325,13 @@ describe('proxyaddr(req, trust)', function () {
       assert.equal(proxyaddr(req, '127.0.0.1'), 'proxy');
     });
 
+    it('should stop at first malformed ip after trusted', function () {
+      var req = createReq('127.0.0.1', {
+        'x-forwarded-for': 'myrouter, 127.0.0.1, ::8:8:8:8:8:8:8:8:8'
+      });
+      assert.equal(proxyaddr(req, '127.0.0.1'), '::8:8:8:8:8:8:8:8:8');
+    });
+
     it('should provide all values to function', function () {
       var log = [];
       var req = createReq('127.0.0.1', {
