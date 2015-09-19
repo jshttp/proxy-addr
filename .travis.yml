@@ -7,6 +7,8 @@ node_js:
   - "1.0"
   - "1.8"
   - "2.0"
+  - "4.0"
+  - "4.1"
 sudo: false
 script:
   - "test $TRAVIS_NODE_VERSION != '0.6' || npm test"
