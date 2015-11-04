@@ -1,3 +1,10 @@
+unreleased
+==========
+
+  * deps: ipaddr.js@1.0.4
+    - Fix accepting some invalid IPv6 addresses
+    - Reject CIDRs with negative or overlong masks
+
 1.0.8 / 2015-05-10
 ==================
 
