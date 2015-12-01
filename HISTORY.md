@@ -1,5 +1,5 @@
-unreleased
-==========
+1.0.9 / 2015-12-01
+==================
 
   * deps: ipaddr.js@1.0.4
     - Fix accepting some invalid IPv6 addresses
