@@ -1,5 +1,5 @@
-unreleased
-==========
+1.0.10 / 2015-12-09
+===================
 
   * deps: ipaddr.js@1.0.5
     - Fix regression in `isValid` with non-string arguments
