@@ -349,6 +349,20 @@ describe('proxyaddr(req, trust)', function () {
       ]);
     });
   });
+
+  describe('when socket address undefined', function () {
+    it('should return undefined as address', function () {
+      var req = createReq(undefined);
+      assert.strictEqual(proxyaddr(req, '127.0.0.1'), undefined);
+    });
+
+    it('should return undefined even with trusted headers', function () {
+      var req = createReq(undefined, {
+        'x-forwarded-for': '127.0.0.1, 10.0.0.1'
+      });
+      assert.strictEqual(proxyaddr(req, '127.0.0.1'), undefined);
+    });
+  });
 });
 
 describe('proxyaddr.all(req, [trust])', function () {
