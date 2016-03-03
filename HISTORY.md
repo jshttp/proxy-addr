@@ -1,6 +1,9 @@
 unreleased
 ==========
 
+  * Fix accepting various invalid netmasks
+    - IPv4 netmasks must be contingous
+    - IPv6 addresses cannot be used as a netmask
   * deps: ipaddr.js@1.1.0
 
 1.0.10 / 2015-12-09

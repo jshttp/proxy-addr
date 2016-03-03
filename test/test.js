@@ -74,7 +74,16 @@ describe('proxyaddr(req, trust)', function () {
         assert.throws(proxyaddr.bind(null, req, '10.0.0.1/6000'), /invalid range on address/);
         assert.throws(proxyaddr.bind(null, req, '::1/6000'), /invalid range on address/);
         assert.throws(proxyaddr.bind(null, req, '::ffff:a00:2/136'), /invalid range on address/);
-        assert.throws(proxyaddr.bind(null, req, '::ffff:a00:2/46'), /invalid range on address/);
+        assert.throws(proxyaddr.bind(null, req, '::ffff:a00:2/-1'), /invalid range on address/);
+      });
+
+      it('should reject bad netmask', function () {
+        var req = createReq('127.0.0.1');
+        assert.throws(proxyaddr.bind(null, req, '10.0.0.1/255.0.255.0'), /invalid range on address/);
+        assert.throws(proxyaddr.bind(null, req, '10.0.0.1/ffc0::'), /invalid range on address/);
+        assert.throws(proxyaddr.bind(null, req, 'fe80::/ffc0::'), /invalid range on address/);
+        assert.throws(proxyaddr.bind(null, req, 'fe80::/255.255.255.0'), /invalid range on address/);
+        assert.throws(proxyaddr.bind(null, req, '::ffff:a00:2/255.255.255.0'), /invalid range on address/);
       });
 
       it('should be invoked as trust(addr, i)', function () {
@@ -239,13 +248,6 @@ describe('proxyaddr(req, trust)', function () {
       });
       assert.equal(proxyaddr(req, 'fe80::/125'), 'fe80::ff00');
     });
-
-    it('should accept netmask notation', function () {
-      var req = createReq('fe80::1', {
-        'x-forwarded-for': '2002:c000:203::1, fe80::ff00'
-      });
-      assert.equal(proxyaddr(req, 'fe80::/ffff:ffff:ffff:ffff:ffff:ffff:ffff:fff8'), 'fe80::ff00');
-    });
   });
 
   describe('when IP versions mixed', function () {
@@ -293,11 +295,11 @@ describe('proxyaddr(req, trust)', function () {
       assert.equal(proxyaddr(req, '::ffff:a00:2/122'), '10.0.0.200');
     });
 
-    it('should match subnet notation for IPv4-mapped address', function () {
+    it('should match CIDR notation for IPv4-mapped address mixed with IPv4 addresses', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.200'
       });
-      assert.equal(proxyaddr(req, '::ffff:a00:2/ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffc0'), '10.0.0.200');
+      assert.equal(proxyaddr(req, ['::ffff:a00:2/122', '127.0.0.1']), '10.0.0.200');
     });
   });
 
@@ -469,7 +471,7 @@ describe('proxyaddr.compile(trust)', function () {
         assert.throws(proxyaddr.compile.bind(null, '10.0.0.1/6000'), /invalid range on address/);
         assert.throws(proxyaddr.compile.bind(null, '::1/6000'), /invalid range on address/);
         assert.throws(proxyaddr.compile.bind(null, '::ffff:a00:2/136'), /invalid range on address/);
-        assert.throws(proxyaddr.compile.bind(null, '::ffff:a00:2/46'), /invalid range on address/);
+        assert.throws(proxyaddr.compile.bind(null, '::ffff:a00:2/-46'), /invalid range on address/);
       });
     });
   });
