@@ -1,5 +1,5 @@
-unreleased
-==========
+1.1.0 / 2016-05-01
+==================
 
   * Fix accepting various invalid netmasks
     - IPv4 netmasks must be contingous
