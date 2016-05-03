@@ -267,9 +267,9 @@ function trustMulti(subnets) {
         }
 
         // Convert IP to match subnet IP kind
-        ipconv = ipconv || subnetkind === 'ipv4'
+        ipconv = ipconv || (subnetkind === 'ipv4'
           ? ip.toIPv4Address()
-          : ip.toIPv4MappedAddress();
+          : ip.toIPv4MappedAddress());
         trusted = ipconv;
       }
 
