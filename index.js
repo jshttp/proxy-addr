@@ -266,10 +266,13 @@ function trustMulti(subnets) {
           continue;
         }
 
-        // Convert IP to match subnet IP kind
-        ipconv = ipconv || subnetkind === 'ipv4'
-          ? ip.toIPv4Address()
-          : ip.toIPv4MappedAddress();
+        if (!ipconv) {
+          // Convert IP to match subnet IP kind
+          ipconv = subnetkind === 'ipv4'
+            ? ip.toIPv4Address()
+            : ip.toIPv4MappedAddress();
+        }
+
         trusted = ipconv;
       }
 

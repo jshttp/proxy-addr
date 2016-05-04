@@ -1,3 +1,8 @@
+unreleased
+==========
+
+  * Fix regression matching mixed versions against multiple subnets
+
 1.1.0 / 2016-05-01
 ==================
 

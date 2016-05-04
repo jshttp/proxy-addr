@@ -295,6 +295,13 @@ describe('proxyaddr(req, trust)', function () {
       assert.equal(proxyaddr(req, '::ffff:a00:2/122'), '10.0.0.200');
     });
 
+    it('should match CIDR notation for IPv4-mapped address mixed with IPv6 CIDR', function () {
+      var req = createReq('10.0.0.1', {
+        'x-forwarded-for': '192.168.0.1, 10.0.0.200'
+      });
+      assert.equal(proxyaddr(req, ['::ffff:a00:2/122', 'fe80::/125']), '10.0.0.200');
+    });
+
     it('should match CIDR notation for IPv4-mapped address mixed with IPv4 addresses', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.200'
