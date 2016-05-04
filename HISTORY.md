@@ -1,5 +1,5 @@
-unreleased
-==========
+1.1.1 / 2016-05-03
+==================
 
   * Fix regression matching mixed versions against multiple subnets
 
