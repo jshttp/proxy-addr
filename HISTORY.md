@@ -1,3 +1,9 @@
+unreleased
+==========
+
+  * deps: ipaddr.js@1.1.1
+    - Fix IPv6-mapped IPv4 validation edge cases
+
 1.1.1 / 2016-05-03
 ==================
 

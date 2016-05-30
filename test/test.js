@@ -64,7 +64,8 @@ describe('proxyaddr(req, trust)', function () {
       it('should reject non-IP', function () {
         var req = createReq('127.0.0.1');
         assert.throws(proxyaddr.bind(null, req, 'blargh'), /invalid IP address/);
-        assert.throws(proxyaddr.bind(null, req, '10.0.300.1/16'), /invalid IP address/);
+        assert.throws(proxyaddr.bind(null, req, '10.0.300.1'), /invalid IP address/);
+        assert.throws(proxyaddr.bind(null, req, '::ffff:30.168.1.9000'), /invalid IP address/);
         assert.throws(proxyaddr.bind(null, req, '-1'), /invalid IP address/);
       });
 
