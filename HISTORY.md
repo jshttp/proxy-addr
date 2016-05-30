@@ -1,5 +1,5 @@
-unreleased
-==========
+1.1.2 / 2016-05-29
+==================
 
   * deps: ipaddr.js@1.1.1
     - Fix IPv6-mapped IPv4 validation edge cases
