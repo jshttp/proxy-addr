@@ -15,7 +15,7 @@
     "ipaddr.js": "1.1.1"
   },
   "devDependencies": {
-    "benchmark": "2.1.0",
+    "benchmark": "2.1.1",
     "beautify-benchmark": "0.2.4",
     "istanbul": "0.4.4",
     "mocha": "~1.21.5"
