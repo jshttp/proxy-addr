@@ -127,7 +127,7 @@ $ npm run-script bench
 [npm-image]: https://img.shields.io/npm/v/proxy-addr.svg
 [npm-url]: https://npmjs.org/package/proxy-addr
 [node-version-image]: https://img.shields.io/node/v/proxy-addr.svg
-[node-version-url]: http://nodejs.org/download/
+[node-version-url]: https://nodejs.org/en/download/
 [travis-image]: https://img.shields.io/travis/jshttp/proxy-addr/master.svg
 [travis-url]: https://travis-ci.org/jshttp/proxy-addr
 [coveralls-image]: https://img.shields.io/coveralls/jshttp/proxy-addr/master.svg
