@@ -1,6 +1,7 @@
 unreleased
 ==========
 
+  * Fix array argument being altered
   * deps: ipaddr.js@1.4.0
 
 1.1.4 / 2017-03-24

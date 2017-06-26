@@ -61,6 +61,13 @@ describe('proxyaddr(req, trust)', function () {
         assert.doesNotThrow(proxyaddr.bind(null, req, ['loopback', '10.0.0.1']));
       });
 
+      it('should not alter input array', function () {
+        var arr = ['loopback', '10.0.0.1'];
+        var req = createReq('127.0.0.1');
+        assert.doesNotThrow(proxyaddr.bind(null, req, arr));
+        assert.deepEqual(arr, ['loopback', '10.0.0.1']);
+      });
+
       it('should reject non-IP', function () {
         var req = createReq('127.0.0.1');
         assert.throws(proxyaddr.bind(null, req, 'blargh'), /invalid IP address/);
@@ -480,6 +487,12 @@ describe('proxyaddr.compile(trust)', function () {
         assert.throws(proxyaddr.compile.bind(null, '::1/6000'), /invalid range on address/);
         assert.throws(proxyaddr.compile.bind(null, '::ffff:a00:2/136'), /invalid range on address/);
         assert.throws(proxyaddr.compile.bind(null, '::ffff:a00:2/-46'), /invalid range on address/);
+      });
+
+      it('should not alter input array', function () {
+        var arr = ['loopback', '10.0.0.1'];
+        assert.equal(typeof proxyaddr.compile(arr), 'function');
+        assert.deepEqual(arr, ['loopback', '10.0.0.1']);
       });
     });
   });
