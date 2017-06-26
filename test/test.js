@@ -482,12 +482,10 @@ describe('proxyaddr.compile(trust)', function () {
         assert.throws(proxyaddr.compile.bind(null, '::ffff:a00:2/-46'), /invalid range on address/);
       });
 
-      it('should not modify val array', () => {
-        assert.doesNotThrow(
-          proxyaddr.compile.bind(null, Object.freeze(['loopback', '127.0.0.1'])),
-          TypeError,
-          'Cannot add/remove sealed array elements'
-        );
+      it('should not modify val array', function () {
+        var array = ['loopback', '127.0.0.1'];
+        proxyaddr.compile(array);
+        assert.deepEqual(array, ['loopback', '127.0.0.1']);
       });
     });
   });
