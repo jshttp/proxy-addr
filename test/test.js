@@ -481,6 +481,12 @@ describe('proxyaddr.compile(trust)', function () {
         assert.throws(proxyaddr.compile.bind(null, '::ffff:a00:2/136'), /invalid range on address/);
         assert.throws(proxyaddr.compile.bind(null, '::ffff:a00:2/-46'), /invalid range on address/);
       });
+
+      it('should not modify val array', function () {
+        var array = ['loopback', '127.0.0.1'];
+        proxyaddr.compile(array);
+        assert.deepEqual(array, ['loopback', '127.0.0.1']);
+      });
     });
   });
 });
