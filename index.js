@@ -28,7 +28,7 @@ var ipaddr = require('ipaddr.js')
  * @private
  */
 
-var digitre = /^[0-9]+$/
+var DIGIT_REGEXP = /^[0-9]+$/
 var isip = ipaddr.isValid
 var parseip = ipaddr.parse
 
@@ -37,7 +37,7 @@ var parseip = ipaddr.parse
  * @private
  */
 
-var ipranges = {
+var IP_RANGES = {
   linklocal: ['169.254.0.0/16', 'fe80::/10'],
   loopback: ['127.0.0.1/8', '::1/128'],
   uniquelocal: ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16', 'fc00::/7']
@@ -99,12 +99,12 @@ function compile (val) {
   for (var i = 0; i < trust.length; i++) {
     val = trust[i]
 
-    if (!ipranges.hasOwnProperty(val)) {
+    if (!IP_RANGES.hasOwnProperty(val)) {
       continue
     }
 
     // Splice in pre-defined range
-    val = ipranges[val]
+    val = IP_RANGES[val]
     trust.splice.apply(trust, [i, 1].concat(val))
     i += val.length - 1
   }
@@ -180,7 +180,7 @@ function parseipNotation (note) {
 
   if (range === null) {
     range = max
-  } else if (digitre.test(range)) {
+  } else if (DIGIT_REGEXP.test(range)) {
     range = parseInt(range, 10)
   } else if (ip.kind() === 'ipv4' && isip(range)) {
     range = parseNetmask(range)
