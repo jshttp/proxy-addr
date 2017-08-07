@@ -2,49 +2,49 @@
 /**
  * Globals for benchmark.js
  */
-global.proxyaddr = require('..');
-global.createReq = createReq;
+global.proxyaddr = require('..')
+global.createReq = createReq
 
 /**
  * Module dependencies.
  */
-var benchmark = require('benchmark');
-var benchmarks = require('beautify-benchmark');
+var benchmark = require('benchmark')
+var benchmarks = require('beautify-benchmark')
 
-var suite = new benchmark.Suite;
+var suite = new benchmark.Suite()
 
 suite.add({
   'name': 'ipv4',
   'minSamples': 100,
   'fn': 'proxyaddr(req, trust)',
   'setup': 'req = createReq("127.0.0.1", "10.0.0.1"); trust = proxyaddr.compile("127.0.0.1")'
-});
+})
 
 suite.add({
   'name': 'ipv4-mapped',
   'minSamples': 100,
   'fn': 'proxyaddr(req, trust)',
   'setup': 'req = createReq("::ffff:7f00:1", "10.0.0.1"); trust = proxyaddr.compile("127.0.0.1")'
-});
+})
 
 suite.add({
   'name': 'ipv6',
   'minSamples': 100,
   'fn': 'proxyaddr(req, trust)',
   'setup': 'req = createReq("::1", "10.0.0.1"); trust = proxyaddr.compile("::1")'
-});
+})
 
-suite.on('cycle', function onCycle(event) {
-  benchmarks.add(event.target);
-});
+suite.on('cycle', function onCycle (event) {
+  benchmarks.add(event.target)
+})
 
-suite.on('complete', function onComplete() {
-  benchmarks.log();
-});
+suite.on('complete', function onComplete () {
+  benchmarks.log()
+})
 
-suite.run({'async': false});
+suite.run({'async': false})
 
-function createReq(socketAddr, forwardedFor) {
+function createReq (socketAddr, forwardedFor) {
   return {
     connection: {
       remoteAddress: socketAddr
@@ -52,5 +52,5 @@ function createReq(socketAddr, forwardedFor) {
     headers: {
       'x-forwarded-for': (forwardedFor || '')
     }
-  };
+  }
 }
