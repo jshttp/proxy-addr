@@ -1,5 +1,5 @@
-unreleased
-==========
+2.0.1 / 2017-09-10
+==================
 
   * deps: forwarded@~0.1.1
     - Fix trimming leading / trailing OWS
