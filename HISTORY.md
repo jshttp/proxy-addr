@@ -1,6 +1,9 @@
 unreleased
 ==========
 
+  * deps: forwarded@~0.1.1
+    - Fix trimming leading / trailing OWS
+    - perf: hoist regular expression
   * deps: ipaddr.js@1.5.2
 
 2.0.0 / 2017-08-08
