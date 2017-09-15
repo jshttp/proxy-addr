@@ -1,3 +1,10 @@
+unreleased
+==========
+
+  * deps: forwarded@~0.1.2
+    - perf: improve header parsing
+    - perf: reduce overhead when no `X-Forwarded-For` header
+
 2.0.1 / 2017-09-10
 ==================
 
