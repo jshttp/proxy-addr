@@ -1,5 +1,5 @@
-unreleased
-==========
+2.0.2 / 2017-09-24
+==================
 
   * deps: forwarded@~0.1.2
     - perf: improve header parsing
