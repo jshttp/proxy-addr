@@ -1,7 +1,7 @@
 {
   "name": "proxy-addr",
   "description": "Determine address of proxied request",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "author": "Douglas Christopher Wilson <doug@somethingdoug.com>",
   "license": "MIT",
   "keywords": [
