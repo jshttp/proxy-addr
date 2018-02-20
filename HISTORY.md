@@ -1,7 +1,7 @@
 unreleased
 ==========
 
-  * deps: ipaddr.js@1.5.4
+  * deps: ipaddr.js@1.6.0
 
 2.0.2 / 2017-09-24
 ==================
