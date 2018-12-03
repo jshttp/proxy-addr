@@ -115,70 +115,70 @@ describe('proxyaddr(req, trust)', function () {
   describe('with all trusted', function () {
     it('should return socket address with no headers', function () {
       var req = createReq('127.0.0.1')
-      assert.equal(proxyaddr(req, all), '127.0.0.1')
+      assert.strictEqual(proxyaddr(req, all), '127.0.0.1')
     })
 
     it('should return header value', function () {
       var req = createReq('127.0.0.1', {
         'x-forwarded-for': '10.0.0.1'
       })
-      assert.equal(proxyaddr(req, all), '10.0.0.1')
+      assert.strictEqual(proxyaddr(req, all), '10.0.0.1')
     })
 
     it('should return furthest header value', function () {
       var req = createReq('127.0.0.1', {
         'x-forwarded-for': '10.0.0.1, 10.0.0.2'
       })
-      assert.equal(proxyaddr(req, all), '10.0.0.1')
+      assert.strictEqual(proxyaddr(req, all), '10.0.0.1')
     })
   })
 
   describe('with none trusted', function () {
     it('should return socket address with no headers', function () {
       var req = createReq('127.0.0.1')
-      assert.equal(proxyaddr(req, none), '127.0.0.1')
+      assert.strictEqual(proxyaddr(req, none), '127.0.0.1')
     })
 
     it('should return socket address with headers', function () {
       var req = createReq('127.0.0.1', {
         'x-forwarded-for': '10.0.0.1, 10.0.0.2'
       })
-      assert.equal(proxyaddr(req, none), '127.0.0.1')
+      assert.strictEqual(proxyaddr(req, none), '127.0.0.1')
     })
   })
 
   describe('with some trusted', function () {
     it('should return socket address with no headers', function () {
       var req = createReq('127.0.0.1')
-      assert.equal(proxyaddr(req, trust10x), '127.0.0.1')
+      assert.strictEqual(proxyaddr(req, trust10x), '127.0.0.1')
     })
 
     it('should return socket address when not trusted', function () {
       var req = createReq('127.0.0.1', {
         'x-forwarded-for': '10.0.0.1, 10.0.0.2'
       })
-      assert.equal(proxyaddr(req, trust10x), '127.0.0.1')
+      assert.strictEqual(proxyaddr(req, trust10x), '127.0.0.1')
     })
 
     it('should return header when socket trusted', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '192.168.0.1'
       })
-      assert.equal(proxyaddr(req, trust10x), '192.168.0.1')
+      assert.strictEqual(proxyaddr(req, trust10x), '192.168.0.1')
     })
 
     it('should return first untrusted after trusted', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.2'
       })
-      assert.equal(proxyaddr(req, trust10x), '192.168.0.1')
+      assert.strictEqual(proxyaddr(req, trust10x), '192.168.0.1')
     })
 
     it('should not skip untrusted', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '10.0.0.3, 192.168.0.1, 10.0.0.2'
       })
-      assert.equal(proxyaddr(req, trust10x), '192.168.0.1')
+      assert.strictEqual(proxyaddr(req, trust10x), '192.168.0.1')
     })
   })
 
@@ -187,34 +187,34 @@ describe('proxyaddr(req, trust)', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.2'
       })
-      assert.equal(proxyaddr(req, ['10.0.0.1', '10.0.0.2']), '192.168.0.1')
+      assert.strictEqual(proxyaddr(req, ['10.0.0.1', '10.0.0.2']), '192.168.0.1')
     })
 
     it('should not trust non-IP addresses', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.2, localhost'
       })
-      assert.equal(proxyaddr(req, ['10.0.0.1', '10.0.0.2']), 'localhost')
+      assert.strictEqual(proxyaddr(req, ['10.0.0.1', '10.0.0.2']), 'localhost')
     })
 
     it('should return socket address if none match', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.2'
       })
-      assert.equal(proxyaddr(req, ['127.0.0.1', '192.168.0.100']), '10.0.0.1')
+      assert.strictEqual(proxyaddr(req, ['127.0.0.1', '192.168.0.100']), '10.0.0.1')
     })
 
     describe('when array empty', function () {
       it('should return socket address ', function () {
         var req = createReq('127.0.0.1')
-        assert.equal(proxyaddr(req, []), '127.0.0.1')
+        assert.strictEqual(proxyaddr(req, []), '127.0.0.1')
       })
 
       it('should return socket address with headers', function () {
         var req = createReq('127.0.0.1', {
           'x-forwarded-for': '10.0.0.1, 10.0.0.2'
         })
-        assert.equal(proxyaddr(req, []), '127.0.0.1')
+        assert.strictEqual(proxyaddr(req, []), '127.0.0.1')
       })
     })
   })
@@ -224,21 +224,21 @@ describe('proxyaddr(req, trust)', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.2'
       })
-      assert.equal(proxyaddr(req, ['10.0.0.1', '10.0.0.2']), '192.168.0.1')
+      assert.strictEqual(proxyaddr(req, ['10.0.0.1', '10.0.0.2']), '192.168.0.1')
     })
 
     it('should accept CIDR notation', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.200'
       })
-      assert.equal(proxyaddr(req, '10.0.0.2/26'), '10.0.0.200')
+      assert.strictEqual(proxyaddr(req, '10.0.0.2/26'), '10.0.0.200')
     })
 
     it('should accept netmask notation', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.200'
       })
-      assert.equal(proxyaddr(req, '10.0.0.2/255.255.255.192'), '10.0.0.200')
+      assert.strictEqual(proxyaddr(req, '10.0.0.2/255.255.255.192'), '10.0.0.200')
     })
   })
 
@@ -247,14 +247,14 @@ describe('proxyaddr(req, trust)', function () {
       var req = createReq('fe80::1', {
         'x-forwarded-for': '2002:c000:203::1, fe80::2'
       })
-      assert.equal(proxyaddr(req, ['fe80::1', 'fe80::2']), '2002:c000:203::1')
+      assert.strictEqual(proxyaddr(req, ['fe80::1', 'fe80::2']), '2002:c000:203::1')
     })
 
     it('should accept CIDR notation', function () {
       var req = createReq('fe80::1', {
         'x-forwarded-for': '2002:c000:203::1, fe80::ff00'
       })
-      assert.equal(proxyaddr(req, 'fe80::/125'), 'fe80::ff00')
+      assert.strictEqual(proxyaddr(req, 'fe80::/125'), 'fe80::ff00')
     })
   })
 
@@ -263,14 +263,14 @@ describe('proxyaddr(req, trust)', function () {
       var req = createReq('::1', {
         'x-forwarded-for': '2002:c000:203::1'
       })
-      assert.equal(proxyaddr(req, ['127.0.0.1', '::1']), '2002:c000:203::1')
+      assert.strictEqual(proxyaddr(req, ['127.0.0.1', '::1']), '2002:c000:203::1')
     })
 
     it('should not match IPv4 to IPv6', function () {
       var req = createReq('::1', {
         'x-forwarded-for': '2002:c000:203::1'
       })
-      assert.equal(proxyaddr(req, '127.0.0.1'), '::1')
+      assert.strictEqual(proxyaddr(req, '127.0.0.1'), '::1')
     })
   })
 
@@ -279,42 +279,42 @@ describe('proxyaddr(req, trust)', function () {
       var req = createReq('::ffff:a00:1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.2'
       })
-      assert.equal(proxyaddr(req, ['10.0.0.1', '10.0.0.2']), '192.168.0.1')
+      assert.strictEqual(proxyaddr(req, ['10.0.0.1', '10.0.0.2']), '192.168.0.1')
     })
 
     it('should match IPv4 netmask trust to IPv6 request', function () {
       var req = createReq('::ffff:a00:1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.2'
       })
-      assert.equal(proxyaddr(req, ['10.0.0.1/16']), '192.168.0.1')
+      assert.strictEqual(proxyaddr(req, ['10.0.0.1/16']), '192.168.0.1')
     })
 
     it('should match IPv6 trust to IPv4 request', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.2'
       })
-      assert.equal(proxyaddr(req, ['::ffff:a00:1', '::ffff:a00:2']), '192.168.0.1')
+      assert.strictEqual(proxyaddr(req, ['::ffff:a00:1', '::ffff:a00:2']), '192.168.0.1')
     })
 
     it('should match CIDR notation for IPv4-mapped address', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.200'
       })
-      assert.equal(proxyaddr(req, '::ffff:a00:2/122'), '10.0.0.200')
+      assert.strictEqual(proxyaddr(req, '::ffff:a00:2/122'), '10.0.0.200')
     })
 
     it('should match CIDR notation for IPv4-mapped address mixed with IPv6 CIDR', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.200'
       })
-      assert.equal(proxyaddr(req, ['::ffff:a00:2/122', 'fe80::/125']), '10.0.0.200')
+      assert.strictEqual(proxyaddr(req, ['::ffff:a00:2/122', 'fe80::/125']), '10.0.0.200')
     })
 
     it('should match CIDR notation for IPv4-mapped address mixed with IPv4 addresses', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.200'
       })
-      assert.equal(proxyaddr(req, ['::ffff:a00:2/122', '127.0.0.1']), '10.0.0.200')
+      assert.strictEqual(proxyaddr(req, ['::ffff:a00:2/122', '127.0.0.1']), '10.0.0.200')
     })
   })
 
@@ -323,14 +323,14 @@ describe('proxyaddr(req, trust)', function () {
       var req = createReq('fe80::1', {
         'x-forwarded-for': '2002:c000:203::1, fe80::2'
       })
-      assert.equal(proxyaddr(req, 'linklocal'), '2002:c000:203::1')
+      assert.strictEqual(proxyaddr(req, 'linklocal'), '2002:c000:203::1')
     })
 
     it('should accept multiple pre-defined names', function () {
       var req = createReq('::1', {
         'x-forwarded-for': '2002:c000:203::1, fe80::2'
       })
-      assert.equal(proxyaddr(req, ['loopback', 'linklocal']), '2002:c000:203::1')
+      assert.strictEqual(proxyaddr(req, ['loopback', 'linklocal']), '2002:c000:203::1')
     })
   })
 
@@ -339,14 +339,14 @@ describe('proxyaddr(req, trust)', function () {
       var req = createReq('127.0.0.1', {
         'x-forwarded-for': 'myrouter, 127.0.0.1, proxy'
       })
-      assert.equal(proxyaddr(req, '127.0.0.1'), 'proxy')
+      assert.strictEqual(proxyaddr(req, '127.0.0.1'), 'proxy')
     })
 
     it('should stop at first malformed ip after trusted', function () {
       var req = createReq('127.0.0.1', {
         'x-forwarded-for': 'myrouter, 127.0.0.1, ::8:8:8:8:8:8:8:8:8'
       })
-      assert.equal(proxyaddr(req, '127.0.0.1'), '::8:8:8:8:8:8:8:8:8')
+      assert.strictEqual(proxyaddr(req, '127.0.0.1'), '::8:8:8:8:8:8:8:8:8')
     })
 
     it('should provide all values to function', function () {
@@ -446,11 +446,11 @@ describe('proxyaddr.compile(trust)', function () {
       })
 
       it('should accept an array', function () {
-        assert.equal(typeof proxyaddr.compile([]), 'function')
+        assert.strictEqual(typeof proxyaddr.compile([]), 'function')
       })
 
       it('should accept a string', function () {
-        assert.equal(typeof proxyaddr.compile('127.0.0.1'), 'function')
+        assert.strictEqual(typeof proxyaddr.compile('127.0.0.1'), 'function')
       })
 
       it('should reject a number', function () {
@@ -458,23 +458,23 @@ describe('proxyaddr.compile(trust)', function () {
       })
 
       it('should accept IPv4', function () {
-        assert.equal(typeof proxyaddr.compile('127.0.0.1'), 'function')
+        assert.strictEqual(typeof proxyaddr.compile('127.0.0.1'), 'function')
       })
 
       it('should accept IPv6', function () {
-        assert.equal(typeof proxyaddr.compile('::1'), 'function')
+        assert.strictEqual(typeof proxyaddr.compile('::1'), 'function')
       })
 
       it('should accept IPv4-style IPv6', function () {
-        assert.equal(typeof proxyaddr.compile('::ffff:127.0.0.1'), 'function')
+        assert.strictEqual(typeof proxyaddr.compile('::ffff:127.0.0.1'), 'function')
       })
 
       it('should accept pre-defined names', function () {
-        assert.equal(typeof proxyaddr.compile('loopback'), 'function')
+        assert.strictEqual(typeof proxyaddr.compile('loopback'), 'function')
       })
 
       it('should accept pre-defined names in array', function () {
-        assert.equal(typeof proxyaddr.compile(['loopback', '10.0.0.1']), 'function')
+        assert.strictEqual(typeof proxyaddr.compile(['loopback', '10.0.0.1']), 'function')
       })
 
       it('should reject non-IP', function () {
@@ -491,7 +491,7 @@ describe('proxyaddr.compile(trust)', function () {
 
       it('should not alter input array', function () {
         var arr = ['loopback', '10.0.0.1']
-        assert.equal(typeof proxyaddr.compile(arr), 'function')
+        assert.strictEqual(typeof proxyaddr.compile(arr), 'function')
         assert.deepEqual(arr, ['loopback', '10.0.0.1'])
       })
     })
