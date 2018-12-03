@@ -1,5 +1,6 @@
 
 var assert = require('assert')
+var deepEqual = require('deep-equal')
 var proxyaddr = require('..')
 
 describe('proxyaddr(req, trust)', function () {
@@ -65,7 +66,7 @@ describe('proxyaddr(req, trust)', function () {
         var arr = ['loopback', '10.0.0.1']
         var req = createReq('127.0.0.1')
         assert.doesNotThrow(proxyaddr.bind(null, req, arr))
-        assert.deepEqual(arr, ['loopback', '10.0.0.1'])
+        deepEqual(arr, ['loopback', '10.0.0.1'])
       })
 
       it('should reject non-IP', function () {
@@ -104,7 +105,7 @@ describe('proxyaddr(req, trust)', function () {
           return log.push(Array.prototype.slice.call(arguments))
         })
 
-        assert.deepEqual(log, [
+        deepEqual(log, [
           ['127.0.0.1', 0],
           ['10.0.0.1', 1]
         ])
@@ -359,7 +360,7 @@ describe('proxyaddr(req, trust)', function () {
         return log.push(Array.prototype.slice.call(arguments))
       })
 
-      assert.deepEqual(log, [
+      deepEqual(log, [
         ['127.0.0.1', 0],
         ['proxy', 1],
         ['127.0.0.1', 2]
@@ -401,7 +402,7 @@ describe('proxyaddr.all(req, [trust])', function () {
   describe('with no headers', function () {
     it('should return socket address', function () {
       var req = createReq('127.0.0.1')
-      assert.deepEqual(proxyaddr.all(req), ['127.0.0.1'])
+      deepEqual(proxyaddr.all(req), ['127.0.0.1'])
     })
   })
 
@@ -410,14 +411,14 @@ describe('proxyaddr.all(req, [trust])', function () {
       var req = createReq('127.0.0.1', {
         'x-forwarded-for': '10.0.0.1'
       })
-      assert.deepEqual(proxyaddr.all(req), ['127.0.0.1', '10.0.0.1'])
+      deepEqual(proxyaddr.all(req), ['127.0.0.1', '10.0.0.1'])
     })
 
     it('should include x-forwarded-for in correct order', function () {
       var req = createReq('127.0.0.1', {
         'x-forwarded-for': '10.0.0.1, 10.0.0.2'
       })
-      assert.deepEqual(proxyaddr.all(req), ['127.0.0.1', '10.0.0.2', '10.0.0.1'])
+      deepEqual(proxyaddr.all(req), ['127.0.0.1', '10.0.0.2', '10.0.0.1'])
     })
   })
 
@@ -426,14 +427,14 @@ describe('proxyaddr.all(req, [trust])', function () {
       var req = createReq('127.0.0.1', {
         'x-forwarded-for': '10.0.0.1, 10.0.0.2'
       })
-      assert.deepEqual(proxyaddr.all(req, '127.0.0.1'), ['127.0.0.1', '10.0.0.2'])
+      deepEqual(proxyaddr.all(req, '127.0.0.1'), ['127.0.0.1', '10.0.0.2'])
     })
 
     it('should be only socket address for no trust', function () {
       var req = createReq('127.0.0.1', {
         'x-forwarded-for': '10.0.0.1, 10.0.0.2'
       })
-      assert.deepEqual(proxyaddr.all(req, []), ['127.0.0.1'])
+      deepEqual(proxyaddr.all(req, []), ['127.0.0.1'])
     })
   })
 })
@@ -492,7 +493,7 @@ describe('proxyaddr.compile(trust)', function () {
       it('should not alter input array', function () {
         var arr = ['loopback', '10.0.0.1']
         assert.strictEqual(typeof proxyaddr.compile(arr), 'function')
-        assert.deepEqual(arr, ['loopback', '10.0.0.1'])
+        deepEqual(arr, ['loopback', '10.0.0.1'])
       })
     })
   })
