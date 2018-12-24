@@ -32,9 +32,8 @@ before_install:
   - "test ! -d node_modules || npm prune"
   - "test ! -d node_modules || npm rebuild"
 script:
-  # Run test script, depending on nyc install
-  - "test ! -z $(npm -ps ls nyc) || npm test"
-  - "test   -z $(npm -ps ls nyc) || npm run-script test-travis"
+  # Run test script
+  - "npm run-script test-travis"
   - "test   -z $(npm -ps ls eslint) || npm run-script lint"
 after_script:
-  - "test -d .nyc_output && npm install coveralls@2 && nyc report --reporter=text-lcov | coveralls"
+  - "npm install coveralls@2 && nyc report --reporter=text-lcov | coveralls"
