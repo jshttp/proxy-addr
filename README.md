@@ -20,8 +20,6 @@ $ npm install proxy-addr
 
 ## API
 
-<!-- eslint-disable no-unused-vars -->
-
 ```js
 var proxyaddr = require('proxy-addr')
 ```
@@ -34,8 +32,6 @@ The `trust` argument is a function that returns `true` if you trust
 the address, `false` if you don't. The closest untrusted address is
 returned.
 
-<!-- eslint-disable no-undef -->
-
 ```js
 proxyaddr(req, function (addr) { return addr === '127.0.0.1' })
 proxyaddr(req, function (addr, i) { return i < 1 })
@@ -45,8 +41,6 @@ The `trust` arugment may also be a single IP address string or an
 array of trusted addresses, as plain IP addresses, CIDR-formatted
 strings, or IP/netmask strings.
 
-<!-- eslint-disable no-undef -->
-
 ```js
 proxyaddr(req, '127.0.0.1')
 proxyaddr(req, ['127.0.0.0/8', '10.0.0.0/8'])
@@ -55,8 +49,6 @@ proxyaddr(req, ['127.0.0.0/255.0.0.0', '192.168.0.0/255.255.0.0'])
 
 This module also supports IPv6. Your IPv6 addresses will be normalized
 automatically (i.e. `fe80::00ed:1` equals `fe80:0:0:0:0:0:ed:1`).
-
-<!-- eslint-disable no-undef -->
 
 ```js
 proxyaddr(req, '::1')
@@ -69,8 +61,6 @@ not have to specify both `::ffff:a00:1` and `10.0.0.1`.
 
 As a convenience, this module also takes certain pre-defined names
 in addition to IP addresses, which expand into IP addresses:
-
-<!-- eslint-disable no-undef -->
 
 ```js
 proxyaddr(req, 'loopback')
@@ -96,16 +86,12 @@ Return all the addresses of the request, optionally stopping at the
 first untrusted. This array is ordered from closest to furthest
 (i.e. `arr[0] === req.connection.remoteAddress`).
 
-<!-- eslint-disable no-undef -->
-
 ```js
 proxyaddr.all(req)
 ```
 
 The optional `trust` argument takes the same arguments as `trust`
 does in `proxyaddr(req, trust)`.
-
-<!-- eslint-disable no-undef -->
 
 ```js
 proxyaddr.all(req, 'loopback')
@@ -116,8 +102,6 @@ proxyaddr.all(req, 'loopback')
 Compiles argument `val` into a `trust` function. This function takes
 the same arguments as `trust` does in `proxyaddr(req, trust)` and
 returns a function suitable for `proxyaddr(req, trust)`.
-
-<!-- eslint-disable no-undef, no-unused-vars -->
 
 ```js
 var trust = proxyaddr.compile('loopback')
