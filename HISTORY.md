@@ -1,5 +1,5 @@
-unreleased
-==========
+2.0.7 / 2021-05-31
+==================
 
   * deps: forwarded@0.2.0
     - Use `req.socket` over deprecated `req.connection`
