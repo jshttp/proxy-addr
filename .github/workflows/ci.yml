@@ -28,6 +28,12 @@ jobs:
         - Node.js 14.x
         - Node.js 15.x
         - Node.js 16.x
+        - Node.js 17.x
+        - Node.js 18.x
+        - Node.js 19.x
+        - Node.js 20.x
+        - Node.js 21.x
+        - Node.js 22.x
 
         include:
         - name: Node.js 0.10
@@ -77,12 +83,12 @@ jobs:
 
         - name: Node.js 8.x
           node-version: "8.17"
-          npm-i: mocha@7.2.0
+          npm-i: mocha@7.2.0 nyc@14.1.1
           npm-rm: beautify-benchmark benchmark
 
         - name: Node.js 9.x
           node-version: "9.11"
-          npm-i: mocha@7.2.0
+          npm-i: mocha@7.2.0 nyc@14.1.1
           npm-rm: beautify-benchmark benchmark
 
         - name: Node.js 10.x
@@ -113,8 +119,32 @@ jobs:
           node-version: "16.2"
           npm-rm: beautify-benchmark benchmark
 
+        - name: Node.js 17.x
+          node-version: "17.9"
+          npm-rm: beautify-benchmark benchmark
+
+        - name: Node.js 18.x
+          node-version: "18.18"
+          npm-rm: beautify-benchmark benchmark
+
+        - name: Node.js 19.x
+          node-version: "19.9"
+          npm-rm: beautify-benchmark benchmark
+
+        - name: Node.js 20.x
+          node-version: "20.9"
+          npm-rm: beautify-benchmark benchmark
+
+        - name: Node.js 21.x
+          node-version: "21.7"
+          npm-rm: beautify-benchmark benchmark
+
+        - name: Node.js 22.x
+          node-version: "22.0"
+          npm-rm: beautify-benchmark benchmark
+
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Install Node.js ${{ matrix.node-version }}
       shell: bash -eo pipefail -l {0}
@@ -126,7 +156,12 @@ jobs:
         dirname "$(nvm which ${{ matrix.node-version }})" >> "$GITHUB_PATH"
 
     - name: Configure npm
-      run: npm config set shrinkwrap false
+      run:  |
+        if [[ "$(npm config get package-lock)" == "true" ]]; then
+          npm config set package-lock false
+        else
+          npm config set shrinkwrap false
+        fi
 
     - name: Remove npm module(s) ${{ matrix.npm-rm }}
       run: npm rm --silent --save-dev ${{ matrix.npm-rm }}
@@ -188,5 +223,5 @@ jobs:
     - name: Upload code coverage
       uses: coverallsapp/github-action@master
       with:
-        github-token: ${{ secrets.github_token }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
         parallel-finished: true
