@@ -10,6 +10,10 @@
     "x-forwarded-for"
   ],
   "repository": "jshttp/proxy-addr",
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/express"
+  },
   "dependencies": {
     "forwarded": "0.2.0",
     "ipaddr.js": "1.9.1"
