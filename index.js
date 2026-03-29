@@ -188,7 +188,7 @@ function parseipNotation (note) {
     range = null
   }
 
-  if (range <= 0 || range > max) {
+  if (range === null || range < 0 || range > max) {
     throw new TypeError('invalid range on address: ' + note)
   }
 
