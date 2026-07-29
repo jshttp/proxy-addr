@@ -16,11 +16,11 @@
   },
   "dependencies": {
     "forwarded": "0.2.0",
-    "ipaddr.js": "1.9.1"
+    "ipaddr.js": "^2.2.0"
   },
   "devDependencies": {
-    "benchmark": "2.1.4",
     "beautify-benchmark": "0.2.4",
+    "benchmark": "2.1.4",
     "deep-equal": "1.1.2",
     "eslint": "7.26.0",
     "eslint-config-standard": "14.1.1",
