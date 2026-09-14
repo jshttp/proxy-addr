@@ -2,7 +2,7 @@ name: Publish package to npm
 
 on:
   release:
-    types: [created]
+    types: [published]
 
 concurrency:
   group: "${{ github.workflow }} ✨ ${{ github.ref }}"
