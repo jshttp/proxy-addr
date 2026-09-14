@@ -9,11 +9,9 @@ permissions:
 
 jobs:
   test:
-    permissions:
-      checks: write  # for coverallsapp/github-action to create new checks
-      contents: read  # for actions/checkout to fetch code
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         name:
         - Node.js 0.10
@@ -40,6 +38,10 @@ jobs:
         - Node.js 20.x
         - Node.js 21.x
         - Node.js 22.x
+        - Node.js 23.x
+        - Node.js 24.x
+        - Node.js 25.x
+        - Node.js 26.x
 
         include:
         - name: Node.js 0.10
@@ -53,104 +55,120 @@ jobs:
           npm-rm: beautify-benchmark benchmark
 
         - name: io.js 1.x
-          node-version: "1.8"
+          node-version: "1"
           npm-i: mocha@3.5.3 nyc@10.3.2
           npm-rm: beautify-benchmark benchmark
 
         - name: io.js 2.x
-          node-version: "2.5"
+          node-version: "2"
           npm-i: mocha@3.5.3 nyc@10.3.2
           npm-rm: beautify-benchmark benchmark
 
         - name: io.js 3.x
-          node-version: "3.3"
+          node-version: "3"
           npm-i: mocha@3.5.3 nyc@10.3.2
           npm-rm: beautify-benchmark benchmark
 
         - name: Node.js 4.x
-          node-version: "4.9"
+          node-version: "4"
           npm-i: mocha@5.2.0 nyc@11.9.0
           npm-rm: beautify-benchmark benchmark
 
         - name: Node.js 5.x
-          node-version: "5.12"
+          node-version: "5"
           npm-i: mocha@5.2.0 nyc@11.9.0
           npm-rm: beautify-benchmark benchmark
 
         - name: Node.js 6.x
-          node-version: "6.17"
+          node-version: "6"
           npm-i: mocha@6.2.2 nyc@14.1.1
           npm-rm: beautify-benchmark benchmark
 
         - name: Node.js 7.x
-          node-version: "7.10"
+          node-version: "7"
           npm-i: mocha@6.2.2 nyc@14.1.1
           npm-rm: beautify-benchmark benchmark
 
         - name: Node.js 8.x
-          node-version: "8.17"
+          node-version: "8"
           npm-i: mocha@7.2.0 nyc@14.1.1
           npm-rm: beautify-benchmark benchmark
 
         - name: Node.js 9.x
-          node-version: "9.11"
+          node-version: "9"
           npm-i: mocha@7.2.0 nyc@14.1.1
           npm-rm: beautify-benchmark benchmark
 
         - name: Node.js 10.x
-          node-version: "10.24"
+          node-version: "10"
           npm-rm: beautify-benchmark benchmark
 
         - name: Node.js 11.x
-          node-version: "11.15"
+          node-version: "11"
           npm-rm: beautify-benchmark benchmark
 
         - name: Node.js 12.x
-          node-version: "12.22"
+          node-version: "12"
           npm-rm: beautify-benchmark benchmark
 
         - name: Node.js 13.x
-          node-version: "13.14"
+          node-version: "13"
           npm-rm: beautify-benchmark benchmark
 
         - name: Node.js 14.x
-          node-version: "14.17"
+          node-version: "14"
           npm-rm: beautify-benchmark benchmark
 
         - name: Node.js 15.x
-          node-version: "15.14"
+          node-version: "15"
           npm-rm: beautify-benchmark benchmark
 
         - name: Node.js 16.x
-          node-version: "16.2"
+          node-version: "16"
           npm-rm: beautify-benchmark benchmark
 
         - name: Node.js 17.x
-          node-version: "17.9"
+          node-version: "17"
           npm-rm: beautify-benchmark benchmark
 
         - name: Node.js 18.x
-          node-version: "18.18"
+          node-version: "18"
           npm-rm: beautify-benchmark benchmark
 
         - name: Node.js 19.x
-          node-version: "19.9"
+          node-version: "19"
           npm-rm: beautify-benchmark benchmark
 
         - name: Node.js 20.x
-          node-version: "20.9"
+          node-version: "20"
           npm-rm: beautify-benchmark benchmark
 
         - name: Node.js 21.x
-          node-version: "21.7"
+          node-version: "21"
           npm-rm: beautify-benchmark benchmark
 
         - name: Node.js 22.x
-          node-version: "22.0"
+          node-version: "22"
+          npm-rm: beautify-benchmark benchmark
+
+        - name: Node.js 23.x
+          node-version: "23"
+          npm-rm: beautify-benchmark benchmark
+
+        - name: Node.js 24.x
+          node-version: "24"
+          npm-rm: beautify-benchmark benchmark
+
+        - name: Node.js 25.x
+          node-version: "25"
+          npm-rm: beautify-benchmark benchmark
+
+        - name: Node.js 26.x
+          node-version: "26"
           npm-rm: beautify-benchmark benchmark
 
     steps:
-    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
     - name: Install Node.js ${{ matrix.node-version }}
       shell: bash -eo pipefail -l {0}
@@ -162,7 +180,7 @@ jobs:
         dirname "$(nvm which ${{ matrix.node-version }})" >> "$GITHUB_PATH"
 
     - name: Configure npm
-      run:  |
+      run: |
         if [[ "$(npm config get package-lock)" == "true" ]]; then
           npm config set package-lock false
         else
@@ -199,7 +217,7 @@ jobs:
         echo "node@$(node -v)"
         echo "npm@$(npm -v)"
         npm -s ls ||:
-        (npm -s ls --depth=0 ||:) | awk -F'[ @]' 'NR>1 && $2 { print "::set-output name=" $2 "::" $3 }'
+        (npm -s ls --depth=0 ||:) | awk -F'[ @]' 'NR>1 && $2 { print $2 "=" $3 }' >> "$GITHUB_OUTPUT"
 
     - name: Run tests
       shell: bash
@@ -214,22 +232,38 @@ jobs:
       if: steps.list_env.outputs.eslint != ''
       run: npm run lint
 
-    - name: Collect code coverage
-      uses: coverallsapp/github-action@5cbfd81b66ca5d10c19b062c04de0199c215fb6e # master
+    - name: Upload code coverage
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       if: steps.list_env.outputs.nyc != ''
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        flag-name: run-${{ matrix.test_number }}
-        parallel: true
+        name: coverage-node-${{ matrix.node-version }}
+        path: ./coverage/lcov.info
+        retention-days: 1
 
   coverage:
-    permissions:
-      checks: write  # for coverallsapp/github-action to create new checks
     needs: test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write  # for coverallsapp/github-action to create new checks
     steps:
-    - name: Upload code coverage
-      uses: coverallsapp/github-action@5cbfd81b66ca5d10c19b062c04de0199c215fb6e # master
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+    - name: Install lcov
+      shell: bash
+      run: sudo apt-get -y install lcov
+
+    - name: Collect coverage reports
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        parallel-finished: true
+        path: ./coverage
+        pattern: coverage-node-*
+
+    - name: Merge coverage reports
+      shell: bash
+      run: find ./coverage -name lcov.info -exec printf '-a %q\n' {} \; | xargs lcov -o ./lcov.info
+
+    - name: Upload coverage report
+      uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
+      with:
+        file: ./lcov.info
