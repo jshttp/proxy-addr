@@ -235,6 +235,13 @@ describe('proxyaddr(req, trust)', function () {
       assert.strictEqual(proxyaddr(req, '10.0.0.2/26'), '10.0.0.200')
     })
 
+    it('should accept /0 CIDR to trust all addresses', function () {
+      var req = createReq('10.0.0.1', {
+        'x-forwarded-for': '192.168.0.1, 172.16.0.1'
+      })
+      assert.strictEqual(proxyaddr(req, '0.0.0.0/0'), '192.168.0.1')
+    })
+
     it('should accept netmask notation', function () {
       var req = createReq('10.0.0.1', {
         'x-forwarded-for': '192.168.0.1, 10.0.0.200'
@@ -488,6 +495,14 @@ describe('proxyaddr.compile(trust)', function () {
         assert.throws(proxyaddr.compile.bind(null, '::1/6000'), /invalid range on address/)
         assert.throws(proxyaddr.compile.bind(null, '::ffff:a00:2/136'), /invalid range on address/)
         assert.throws(proxyaddr.compile.bind(null, '::ffff:a00:2/-46'), /invalid range on address/)
+      })
+
+      it('should accept IPv4 CIDR /0', function () {
+        assert.strictEqual(typeof proxyaddr.compile('0.0.0.0/0'), 'function')
+      })
+
+      it('should accept IPv6 CIDR /0', function () {
+        assert.strictEqual(typeof proxyaddr.compile('::/0'), 'function')
       })
 
       it('should not alter input array', function () {
