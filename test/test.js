@@ -499,6 +499,125 @@ describe('proxyaddr.compile(trust)', function () {
   })
 })
 
+describe('proxyaddr.compile(trust) IPv4-mapped IPv6 subnets', function () {
+  // @see https://github.com/jshttp/proxy-addr/security/advisories/GHSA-jqcg-44mw-7w3h
+  it('should not trust arbitrary IPv4 for a short-prefix mapped subnet', function () {
+    var trust = proxyaddr.compile(['::ffff:10.0.0.0/8'])
+    assert.strictEqual(trust('8.8.8.8'), false)
+    assert.strictEqual(trust('203.0.113.9'), false)
+    assert.strictEqual(trust('0.0.0.0'), false)
+    assert.strictEqual(trust('10.0.0.1'), false)
+  })
+
+  it('should trust the intended block when written as a /104 mapped subnet', function () {
+    var trust = proxyaddr.compile(['::ffff:10.0.0.0/104'])
+    assert.strictEqual(trust('10.0.0.1'), true)
+    assert.strictEqual(trust('8.8.8.8'), false)
+  })
+
+  it('should behave like the plain IPv4 subnet', function () {
+    var trust = proxyaddr.compile(['10.0.0.0/8'])
+    assert.strictEqual(trust('10.0.0.1'), true)
+    assert.strictEqual(trust('8.8.8.8'), false)
+  })
+
+  it('should treat a /96 mapped subnet as all IPv4', function () {
+    var trust = proxyaddr.compile(['::ffff:0.0.0.0/96'])
+    assert.strictEqual(trust('10.0.0.1'), true)
+    assert.strictEqual(trust('8.8.8.8'), true)
+  })
+
+  it('should reject a mapped subnet whose prefix is below 96', function () {
+    var trust = proxyaddr.compile(['::ffff:0.0.0.0/95'])
+    assert.strictEqual(trust('8.8.8.8'), false)
+  })
+
+  it('should honor a /97 mapped subnet as a proper subset of IPv4', function () {
+    var trust = proxyaddr.compile(['::ffff:0.0.0.0/97'])
+    assert.strictEqual(trust('8.8.8.8'), true)
+    assert.strictEqual(trust('120.0.0.1'), true)
+    assert.strictEqual(trust('200.0.0.1'), false)
+  })
+
+  it('should not trust IPv4 for an IPv6 subnet with zero leading bits', function () {
+    var trust = proxyaddr.compile(['::/1'])
+    assert.strictEqual(trust('8.8.8.8'), false)
+    assert.strictEqual(trust('::ffff:8.8.8.8'), false)
+    assert.strictEqual(trust('::ffff:10.0.0.1'), false)
+  })
+
+  it('should leave ordinary IPv6 subnets unaffected', function () {
+    var trust = proxyaddr.compile(['fc00::/7'])
+    assert.strictEqual(trust('8.8.8.8'), false)
+    assert.strictEqual(trust('fc00::1'), true)
+  })
+
+  it('should leave the built-in uniquelocal name unaffected', function () {
+    var trust = proxyaddr.compile('uniquelocal')
+    assert.strictEqual(trust('10.0.0.1'), true)
+    assert.strictEqual(trust('8.8.8.8'), false)
+  })
+
+  it('should neutralize a short-prefix mapped subnet in a multi-subnet list', function () {
+    var trust = proxyaddr.compile(['::ffff:10.0.0.0/8', '10.0.0.0/8'])
+    assert.strictEqual(trust('10.0.0.1'), true)
+    assert.strictEqual(trust('8.8.8.8'), false)
+  })
+
+  it('should not believe X-Forwarded-For from an untrusted socket peer', function () {
+    var req = createReq('127.0.0.1', {
+      'x-forwarded-for': '9.9.9.9'
+    })
+    assert.strictEqual(proxyaddr(req, ['::ffff:10.0.0.0/8']), '127.0.0.1')
+  })
+
+  it('should not trust an IPv4-mapped candidate for a short-prefix mapped subnet', function () {
+    var trust = proxyaddr.compile(['::ffff:10.0.0.0/8'])
+    assert.strictEqual(trust('::ffff:8.8.8.8'), false)
+    assert.strictEqual(trust('::ffff:1.2.3.4'), false)
+    assert.strictEqual(trust('::ffff:10.0.0.1'), false)
+  })
+
+  it('should trust an IPv4-mapped candidate for a /104 mapped subnet', function () {
+    var trust = proxyaddr.compile(['::ffff:10.0.0.0/104'])
+    assert.strictEqual(trust('::ffff:10.0.0.1'), true)
+    assert.strictEqual(trust('::ffff:8.8.8.8'), false)
+  })
+
+  it('should match a mapped candidate identically to its IPv4 form', function () {
+    var trust = proxyaddr.compile(['10.0.0.0/8'])
+    assert.strictEqual(trust('::ffff:10.0.0.1'), true)
+    assert.strictEqual(trust('::ffff:8.8.8.8'), false)
+  })
+
+  it('should not believe X-Forwarded-For from an untrusted IPv4-mapped socket peer', function () {
+    var req = createReq('::ffff:8.8.8.8', {
+      'x-forwarded-for': '9.9.9.9'
+    })
+    assert.strictEqual(proxyaddr(req, ['::ffff:10.0.0.0/8']), '::ffff:8.8.8.8')
+  })
+
+  it('should not trust native IPv6 for a short-prefix mapped subnet', function () {
+    var trust = proxyaddr.compile(['::ffff:10.0.0.0/8'])
+    assert.strictEqual(trust('::1'), false)
+    assert.strictEqual(trust('::abcd'), false)
+    var trust95 = proxyaddr.compile(['::ffff:0.0.0.0/95'])
+    assert.strictEqual(trust95('::fffe:0:0'), false)
+  })
+
+  it('should not trust native IPv6 for a valid mapped subnet', function () {
+    var trust = proxyaddr.compile(['::ffff:10.0.0.0/104'])
+    assert.strictEqual(trust('::1'), false)
+    assert.strictEqual(trust('10.0.0.1'), true)
+  })
+
+  it('should still trust native IPv6 within an ordinary IPv6 subnet', function () {
+    var trust = proxyaddr.compile(['2001:db8::/32'])
+    assert.strictEqual(trust('2001:db8::1'), true)
+    assert.strictEqual(trust('::1'), false)
+  })
+})
+
 function createReq (socketAddr, headers) {
   return {
     connection: {
