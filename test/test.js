@@ -1,6 +1,10 @@
 
 var assert = require('assert')
 var deepEqual = require('deep-equal')
+var fs = require('fs')
+var http = require('http')
+var os = require('os')
+var path = require('path')
 var proxyaddr = require('..')
 
 describe('proxyaddr(req, trust)', function () {
@@ -380,6 +384,61 @@ describe('proxyaddr(req, trust)', function () {
       })
       assert.strictEqual(proxyaddr(req, '127.0.0.1'), undefined)
     })
+
+    it('should not treat a TCP socket without remoteAddress as loopback', function () {
+      var req = createReq(undefined, {
+        'x-forwarded-for': '10.0.0.1'
+      })
+      req.connection.server = {
+        address: function () {
+          return { address: '0.0.0.0', family: 'IPv4', port: 3000 }
+        }
+      }
+      assert.strictEqual(proxyaddr(req, 'loopback'), undefined)
+    })
+  })
+
+  describe('when request is over a unix socket', function () {
+    it('should treat the socket as loopback', function () {
+      var req = createUnixReq()
+      assert.strictEqual(proxyaddr(req, 'loopback'), '127.0.0.1')
+    })
+
+    it('should honor X-Forwarded-For when loopback is trusted', function () {
+      var req = createUnixReq({
+        'x-forwarded-for': '8.8.8.8, 10.0.0.1'
+      })
+      assert.strictEqual(proxyaddr(req, 'loopback'), '10.0.0.1')
+    })
+
+    it('should honor further trusted hops after the socket', function () {
+      var req = createUnixReq({
+        'x-forwarded-for': '8.8.8.8, 10.0.0.1'
+      })
+      assert.strictEqual(proxyaddr(req, ['loopback', '10.0.0.0/8']), '8.8.8.8')
+    })
+
+    it('should not trust headers when loopback is not trusted', function () {
+      var req = createUnixReq({
+        'x-forwarded-for': '8.8.8.8'
+      })
+      assert.strictEqual(proxyaddr(req, []), '127.0.0.1')
+    })
+
+    it('should detect the socket via address().path', function () {
+      var req = {
+        connection: {
+          remoteAddress: undefined,
+          address: function () {
+            return { path: '/tmp/app.sock' }
+          }
+        },
+        headers: {
+          'x-forwarded-for': '8.8.8.8'
+        }
+      }
+      assert.strictEqual(proxyaddr(req, 'loopback'), '8.8.8.8')
+    })
   })
 })
 
@@ -435,6 +494,22 @@ describe('proxyaddr.all(req, [trust])', function () {
         'x-forwarded-for': '10.0.0.1, 10.0.0.2'
       })
       strictDeepEqual(proxyaddr.all(req, []), ['127.0.0.1'])
+    })
+  })
+
+  describe('when request is over a unix socket', function () {
+    it('should include loopback as the socket address', function () {
+      var req = createUnixReq({
+        'x-forwarded-for': '10.0.0.1'
+      })
+      strictDeepEqual(proxyaddr.all(req), ['127.0.0.1', '10.0.0.1'])
+    })
+
+    it('should stop at first untrusted after the socket', function () {
+      var req = createUnixReq({
+        'x-forwarded-for': '8.8.8.8, 10.0.0.1'
+      })
+      strictDeepEqual(proxyaddr.all(req, 'loopback'), ['127.0.0.1', '10.0.0.1'])
     })
   })
 })
@@ -626,6 +701,69 @@ function createReq (socketAddr, headers) {
     headers: headers || {}
   }
 }
+
+function createUnixReq (headers) {
+  var socket = {
+    remoteAddress: undefined,
+    server: {
+      address: function () {
+        return '/tmp/app.sock'
+      }
+    }
+  }
+
+  return {
+    connection: socket,
+    socket: socket,
+    headers: headers || {}
+  }
+}
+
+describe('when listening on a unix socket', function () {
+  var socketPath = path.join(os.tmpdir(), 'proxy-addr-' + process.pid + '.sock')
+
+  afterEach(function () {
+    try {
+      fs.unlinkSync(socketPath)
+    } catch (e) { /* ignore */ }
+  })
+
+  it('should treat the live socket as loopback and honor X-Forwarded-For', function (done) {
+    if (process.platform === 'win32') {
+      return this.skip()
+    }
+
+    var server = http.createServer(function (req, res) {
+      res.end(JSON.stringify({
+        ip: proxyaddr(req, 'loopback'),
+        all: proxyaddr.all(req, 'loopback'),
+        none: proxyaddr(req, [])
+      }))
+    })
+
+    server.listen(socketPath, function () {
+      http.get({
+        headers: { 'X-Forwarded-For': '8.8.8.8, 10.0.0.1' },
+        path: '/',
+        socketPath: socketPath
+      }, function (res) {
+        var buf = ''
+        res.on('data', function (chunk) { buf += chunk })
+        res.on('end', function () {
+          server.close(function () {
+            var body = JSON.parse(buf)
+            assert.strictEqual(body.ip, '10.0.0.1')
+            strictDeepEqual(body.all, ['127.0.0.1', '10.0.0.1'])
+            assert.strictEqual(body.none, '127.0.0.1')
+            done()
+          })
+        })
+      }).on('error', function (err) {
+        server.close(function () { done(err) })
+      })
+    })
+  })
+})
 
 function strictDeepEqual (actual, expected, message) {
   if (assert.deepStrictEqual) {

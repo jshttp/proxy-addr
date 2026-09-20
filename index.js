@@ -56,6 +56,12 @@ function alladdrs (req, trust) {
   // get addresses
   var addrs = forwarded(req)
 
+  if (addrs[0] == null && isUnixSocket(req)) {
+    // Unix domain sockets / named pipes have no remoteAddress;
+    // treat them as loopback so configured trust can apply.
+    addrs[0] = '127.0.0.1'
+  }
+
   if (!trust) {
     // Return all addresses
     return addrs
@@ -72,6 +78,40 @@ function alladdrs (req, trust) {
   }
 
   return addrs
+}
+
+/**
+ * Determine if the request arrived over a Unix domain socket
+ * or Windows named pipe.
+ *
+ * Node.js leaves `remoteAddress` unset for IPC connections. The
+ * documented signal is `server.address()` returning a string (the
+ * path). Some Node versions also expose `socket.address().path`.
+ *
+ * @param {Object} req
+ * @private
+ */
+
+function isUnixSocket (req) {
+  var sock = req.socket || req.connection
+
+  if (!sock) {
+    return false
+  }
+
+  var bind = sock.server && typeof sock.server.address === 'function'
+    ? sock.server.address()
+    : undefined
+
+  if (typeof bind === 'string') {
+    return true
+  }
+
+  bind = typeof sock.address === 'function'
+    ? sock.address()
+    : undefined
+
+  return !!(bind && typeof bind.path === 'string')
 }
 
 /**
